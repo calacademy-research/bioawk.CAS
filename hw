@@ -1,0 +1,12 @@
+function apply(ch){i++; if(CHAR=="N")Ns++}
+function prt(s){print s}
+BEGIN{
+      s="AaNBCNDEFNGHNNNIJ"
+      # modstr(s, 1+2, 5)
+      # print s
+
+      # applytochars(s, apply(CHAR), prt(CHAR))
+      applytochars(s, Ns += CHAR=="N", prt(CHAR ":" ORD ":" or(ORD, 32)))
+      print "CHAR is:",CHAR, ORD, "or32", or(ORD, 32), ORD*-1
+      print "hw Ns:", Ns
+}
