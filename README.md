@@ -48,6 +48,7 @@ To create the **bioawk_cas** program, just run ``make`` in the **bioawk.CAS** di
 
 Examples and function documentation to come.
 
+---
 **Here is the original documentation**
 
 ###Introduction
