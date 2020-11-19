@@ -44,7 +44,7 @@ bioawk_cas: edit_dist requires 4 to 7 arguments: max_editdist, str1, str1_match_
 An edlib object file for Linux 86_64 systems and one for macOS can be used by Makefile if edlib.obj does not exist.
 If these do not work, clone the edlib repo https://github.com/Martinsos/edlib and after running ``make`` copy edlib.obj into the bioawk_cas repo directory.
 
-Just run ``make`` in the repo directory and copy the ``bioawk_cas`` or ``bioawk`` file and the ``bawk`` script into a directory on your PATH.
+To create the bioawk_cas program, just run ``make`` in the bioawk.CAS directory and copy the ``bioawk_cas`` or ``bioawk`` file and the ``bawk`` script into a directory on your PATH.
 
 Examples and function documentation to come.
 
