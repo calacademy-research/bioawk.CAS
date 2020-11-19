@@ -4,7 +4,7 @@ This version, bioawk_cas, adds several additional functions including linking in
 
 To see the novel bioawk functions use -h or --help,
 ```
-bioawk_cas -h
+$ bioawk_cas -h
 
 usage: bioawk_cas [-F fs] [-v var=value] [-c fmt] [-tH] [-f progfile | 'prog'] [file ...]
 
