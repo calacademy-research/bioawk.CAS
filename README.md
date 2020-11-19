@@ -1,4 +1,4 @@
-**bioawk_cas** is a fork of Connor Skennerton's fork https://github.com/ctSkennerton/bioawk of Heng Li's https://github.com/lh3/bioawk. Connor adds a translate function to the core bioawk extensions to be able to translate nucelotide into protein sequences.
+**bioawk_cas** is a fork of Connor Skennerton's fork https://github.com/ctSkennerton/bioawk of Heng Li's https://github.com/lh3/bioawk. Connor adds a **translate** function to the core bioawk extensions to be able to translate nucelotide into protein sequences.
 
 This version, bioawk_cas, adds several additional functions including linking in edlib to perform approximate searches. The original documention is below these notes.
 
