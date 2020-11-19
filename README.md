@@ -27,7 +27,7 @@ The first line under bioawk functions in the above code block are the functions 
 The next line has the translate function and then the, currently 9, new functions added in bioawk_cas.
 
 Since the most common use of bioawk is with fasta or fastq files using the -c fastx option, a script named **bawk** is included that presumes this.
-**bawk** is `bioawk -c fastx "$@"`
+**bawk** is `bioawk -c fastx "$@"` and saves a bit of typing.
 
 Most of the new functions will provide a parameter overview if you use its name in a BEGIN block. For example,
 ```
