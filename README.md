@@ -41,10 +41,10 @@ bioawk_cas: edit_dist requires 4 to 7 arguments: max_editdist, str1, str1_match_
                   mode: 0 complete match, 1 prefix match, 2 infix match (add 10 or 20 for CIGAR). Can use string len -1 for full length.
                   flags: 1 N matches ACTG, 2 Y matches CT, R matches AG, 3 both.
 ```
-An edlib object file for Linux 86_64 systems and one for macOS can be used by Makefile if edlib.obj does not exist.
-If these do not work, clone the edlib repo https://github.com/Martinsos/edlib and after running ``make`` copy edlib.obj into the **bioawk.CAS** repo directory.
-
 To create the **bioawk_cas** program, just run ``make`` in the **bioawk.CAS** directory and copy the ``bioawk_cas`` or ``bioawk`` file and the ``bawk`` script into a directory on your PATH.
+
+*Note: An edlib object file for Linux 86_64 systems and one for macOS can be used by Makefile if edlib.obj does not exist.
+If these do not work, clone the edlib repo https://github.com/Martinsos/edlib and after running ``make`` copy edlib.obj into the **bioawk.CAS** repo directory.*
 
 Examples and function documentation to come.
 
