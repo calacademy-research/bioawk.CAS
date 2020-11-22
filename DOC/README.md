@@ -16,4 +16,4 @@ A few of the functions were added since it is difficult or slow using substr() t
 
 ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
 
-``applytochars(str, stmt_or_func)`` function calls the 2nd argument called for each character in str with CHAR and ORD variables set.
+``applytochars(str, stmt_or_func)`` function calls the 2nd argument for each character in str with CHAR and ORD variables set.
