@@ -1,6 +1,6 @@
 **bioawk_cas** is a fork of Connor Skennerton's fork https://github.com/ctSkennerton/bioawk of Heng Li's https://github.com/lh3/bioawk. Connor adds a ``translate`` function to the core bioawk extensions to be able to translate nucelotide into protein sequences and ``gffattr`` to put the field 10 GFF line attributes into an array.
 
-This version, bioawk_cas, adds several additional functions including linking in edlib to perform approximate searches. The original documention is below these notes.
+This version, bioawk_cas, adds several additional functions including linking in edlib to perform approximate searches from https://github.com/Martinsos/edlib. The original documention is below these notes.
 
 To see the novel bioawk functions use -h or --help,
 ```
