@@ -1,4 +1,4 @@
-**bioawk_cas** is a fork of Connor Skennerton's fork https://github.com/ctSkennerton/bioawk of Heng Li's https://github.com/lh3/bioawk. Connor adds a ``translate`` function to the core bioawk extensions to be able to translate nucelotide into protein sequences.
+**bioawk_cas** is a fork of Connor Skennerton's fork https://github.com/ctSkennerton/bioawk of Heng Li's https://github.com/lh3/bioawk. Connor adds a ``translate`` and ``gffattr`` function to the core bioawk extensions to be able to translate nucelotide into protein sequences.
 
 This version, bioawk_cas, adds several additional functions including linking in edlib to perform approximate searches. The original documention is below these notes.
 
@@ -21,10 +21,10 @@ fastx:
 
 bioawk functions:
 	gc meanqual qualcount revcomp reverse trimq and or xor
-	translate systime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat
+	translate gffattr systime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat
 ```
 The first line under bioawk functions in the above code block are the functions added in Heng Li's original version.
-The next line has the translate function and then the, currently 9, new functions added in bioawk_cas.
+The next line has the translate, gffattr functions and then the new functions added in bioawk_cas.
 
 Since the most common use of bioawk is with fasta or fastq files using the -c fastx option, a script named **bawk** is included that presumes this.
 **bawk** is `bioawk -c fastx "$@"` and saves a bit of typing.
