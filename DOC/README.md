@@ -8,3 +8,6 @@ $ echo "example string to check" | bioawk_cas '{print; print "md5:", md5($0)}'
 example string to check
 md5: 59471d22e23e4198fd170cc7e4a58cbb
 ```
+A few of the functions were added since it is difficult or slow using substr() to modify the characters of a string.
+
+``modstr`` takes 3 to 5 arguments ``modstr(str, start, length, [mod_type, str_length])`` and is used for in-place string variable case changing. mod_type 0 to lowercase, 1 to uppercase (default 0). Optional str_length faster for multiple calls, so the length isn't recalculated every call.
