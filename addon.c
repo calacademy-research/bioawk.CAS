@@ -259,6 +259,69 @@ void bio_translate(char *dna, char *out, int table)
         out[i] = '\0';
 }
 
+void bio_attribute_inner(char * tag, char ** key, char ** value, char **sep_loc) {
+    /* split a gff Key=value string pair into the key and value*/
+    *key = tag;
+    char sep;
+    sep = '=';
+    while (*tag != sep && *tag != '\0')
+        tag++;
+    *sep_loc = tag;
+    *tag = '\0';
+    *value = ++tag;
+}
+
+void bio_attribute(Cell * x, Cell * ap, Cell * y) {
+    /* attribute(x, array [, format])
+            x, which is a string with the tags or attributes field
+              of either gff, or sam format.
+            array, which is the array created by parsing the string
+            format, an optional format, which can be gff or sam. The
+              default is to infer the format from the current bio format
+              set via the -c commandline option. Specifying the format
+              allows you to overrite this or to use the function when
+              -c isn't in effect.
+
+            will return the number of keys in the array.
+          */
+
+    char *origS, *s, sep, *t, temp;
+    origS = s = strdup(getsval(x));
+    sep = ';';
+    int n;
+    n = 0;
+
+    for (;;) {
+        n++;
+        t = s;
+        while (*s != sep && *s != '\n' && *s != '\0')
+            s++;
+
+        /*we save the character which should be sep and then change it
+        to the null character to terminate the string. After we set the
+        string in the dictonary we set the charent character back*/
+        temp = *s;
+        *s = '\0';
+
+        char *key, *value, *temp2;
+        bio_attribute_inner(t, &key, &value, &temp2);
+        if (is_number(value))
+            setsymtab(key, value, atof(value), STR|NUM, (Array *) ap->sval);
+        else
+            setsymtab(key, value, 0.0, STR, (Array *) ap->sval);
+        *s = temp;
+        *temp2 = '=';
+        if (*s++ == 0)
+            break;
+    }
+    free(origS);
+    if (y != NULL) {
+        y->tval = NUM;
+        y->fval = n;
+        setfval(y, (Awkfloat) n);
+    }
+}
+
 static float q_int2real[128];
 
 // for treating N and/or YR as wildcards in edit_dist() call
@@ -387,7 +450,7 @@ Cell *bio_func(int f, Cell *x, Node **a)
         int transtable = 0;
         char *buf;
         char *out;
-        if(a[1]->nnext != 0) {
+        if (a[1]->nnext != 0) {
             z = execute(a[1]->nnext);
             transtable = (int) getfval(z);
             /*convert to 0-based indexing*/
@@ -399,6 +462,18 @@ Cell *bio_func(int f, Cell *x, Node **a)
         bio_translate(buf, out, transtable);
         setsval(y, out);
         free(out);
+    } else if (f == BIO_GFFATTR) {
+	    Cell * ap = NULL;
+        if (a[1]->nnext != 0) {
+            ap = execute(a[1]->nnext);
+        } else {
+            FATAL("gffattr() requires at least two arguments: attr_str and array");
+        }
+        freesymtab(ap);
+        ap->tval &= ~STR;
+        ap->tval |= ARR;
+        ap->sval = (char *) makesymtab(NSYMTAB);
+        bio_attribute(x, ap, y);
     } else if (f == BIO_FSYSTIME) { /* 12Aug2019 JBH_CAS add systime() that gawk has had for awhile */
         time_t lclock;
         (void) time(& lclock);

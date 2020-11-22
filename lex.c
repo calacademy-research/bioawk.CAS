@@ -68,7 +68,8 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "function",	FUNC,		FUNC },
 	{ "gc",	BIO_FGC,		BLTIN },
 	{ "getline",	GETLINE,	GETLINE },
-	{ "gsub",	GSUB,		GSUB },
+    { "gffattr", BIO_GFFATTR, BLTIN },
+    { "gsub",	GSUB,		GSUB },
 	{ "hamming",	BIO_FHAMMING,	BLTIN }, /* hamming() returns mismatch count of pat at text */
 	{ "if",		IF,		IF },
 	{ "in",		IN,		IN },

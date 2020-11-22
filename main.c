@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 	                printf(usage_str, cmdname);
                         bio_get_fmt("");
                         printf("\nbioawk functions:\n\tgc meanqual qualcount revcomp reverse trimq and or xor\n"
-                               "\ttranslate systime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat\n\n");
+                               "\ttranslate gffattr systime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat\n\n");
                         exit(0);
                         break;
                 }
