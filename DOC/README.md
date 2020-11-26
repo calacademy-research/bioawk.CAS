@@ -6,7 +6,7 @@ Documentation of: translate gffattr systime md5 edit_dist hamming end_adapter_po
 
     bawk '{print ">"$name;print translate($seq)}' seq.fa.gz
 
-can also use different translation tables. To translate using the bactera/archaea code:
+can also use different translation tables. To translate using the bacteria/archaea code:
 
     bawk '{print ">"$name;print translate($seq, 11)}' seq.fa.gz
 
