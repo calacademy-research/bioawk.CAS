@@ -1,6 +1,8 @@
 Documentation of: translate gffattr systime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat
 
-``translate(nucl_str [, table_num])`` translates nucleotide string nucl_str and returns the protein sequence (from github.com/ctSkennerton/bioawk doc)
+``translate`` ``gffattr``  added in github.com/ctSkennerton/bioawk
+
+``translate(nucl_str [, table_num])`` translates nucleotide string nucl_str. Returns the protein sequence.
 
     bioawk -c fastx '{print ">"$name;print translate($seq)}' seq.fa.gz
 
