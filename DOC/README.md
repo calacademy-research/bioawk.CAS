@@ -37,7 +37,7 @@ Name = Gm38527
 
 Remaining functions added in bioawk_cas
 
-(3) ``systime()`` returns the number of milliseconds since the Linux epoch. This function is already in most other awk versions. Useful for timing.
+(3) ``systime()`` returns the number of milliseconds since the Linux epoch. This is already in most other awk versions. Useful for timing.
 
 (4) ``md5(str)`` returns the md5 code of the string argument. For example:
 ```
