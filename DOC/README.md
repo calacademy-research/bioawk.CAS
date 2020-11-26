@@ -69,10 +69,16 @@ Comparison starts at position of the third optional argument, text_pos.  Default
 Optional arguments 4 and 5 allow for case insensitive comparisons and the ability to treat the N character as a wildcard. To use either of these a text_pos must be provided.
 
 (10) ``edit_dist`` requires 4 to 7 arguments ``edit_dist( max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]] )``
+
            mode: 0 complete match, 1 prefix match, 2 infix match (add 10 or 20 for CIGAR). Can use string len -1 for full length.
+           
            flags: 1 N matches ACTG, 2 Y matches CT, R matches AG, 3 both.
+           
+           Returns string starting with edit distance, -1 for no match, 0 for perfect and other values.
 
 
 (11)  ``end_adapter_pos("", adapter)`` to set adapter, subsequently ``end_adapter_pos(seq)`` to check seq suffix against adapter prefix.
+
        To set adapter call with empty seq, subsequent calls use seq as only argument.
+       
        Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
