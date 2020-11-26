@@ -41,7 +41,7 @@ Remaining functions added in bioawk_cas
 
 (3) ``systime()`` returns the number of milliseconds since the Linux epoch. This function is already in most other awk versions. Useful for timing.
 
-4. ``md5(str)`` returns the md5 code of the string argument. For example:
+(4) ``md5(str)`` returns the md5 code of the string argument. For example:
 ```
 $ echo "example string to check" | bioawk_cas '{print; print "md5:", md5($0)}'
 example string to check
@@ -49,29 +49,30 @@ md5: 59471d22e23e4198fd170cc7e4a58cbb
 ```
 A few of the functions were added since it is difficult or slow using substr() to modify the characters of a string.
 
-5. ``modstr`` takes 3 to 5 arguments ``modstr(str, start, length, [mod_type, str_length])`` and is used for in-place string variable case changing. mod_type 0 to lowercase, 1 to uppercase (default 0). Optional str_length faster for multiple calls, so the length isn't recalculated every call.
+(5) ``modstr`` takes 3 to 5 arguments ``modstr(str, start, length, [mod_type, str_length])`` and is used for in-place string variable case changing. mod_type 0 to lowercase, 1 to uppercase (default 0). Optional str_length faster for multiple calls, so the length isn't recalculated every call.
 
-6. ``setat`` takes 3 or 4 arguments ``setat(str,pos,replacement[, optional repeat_count])`` and does an in-place overwrite of a string with another string. Often used with a single character replacement string. The modified string is not changed in length.
+(6) ``setat`` takes 3 or 4 arguments ``setat(str,pos,replacement[, optional repeat_count])`` and does an in-place overwrite of a string with another string. Often used with a single character replacement string. The modified string is not changed in length.
 
-7. ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
+(7) ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
 
-8. ``applytochars(str, stmt_or_func)`` function calls the 2nd argument for each character in str with CHAR and ORD variables set.
+(8) ``applytochars(str, stmt_or_func)`` function calls the 2nd argument for each character in str with CHAR and ORD variables set.
+
 
 
 The search functions added are ``hamming`` ``edit_dist`` ``end_adapter_pos``
 
-9. ``hamming( pattern, text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]] )`` compares the pattern of the first argument to the characters in the text of the second argument for the length of the pattern (up to any remaining characters in the text string).
+(9) ``hamming( pattern, text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]] )`` compares the pattern of the first argument to the characters in the text of the second argument for the length of the pattern (up to any remaining characters in the text string).
 
 Returns the number of mismatches.
 
 Comparison starts at position of the third optional argument, text_pos.  Default is to start at text string beginning which is text_pos 1.
 Optional arguments 4 and 5 allow for case insensitive comparisons and the ability to treat the N character as a wildcard. To use either of these a text_pos must be provided.
 
-10. edit_dist requires 4 to 7 arguments: max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]]
+(10) edit_dist requires 4 to 7 arguments: max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]]
                   mode: 0 complete match, 1 prefix match, 2 infix match (add 10 or 20 for CIGAR). Can use string len -1 for full length.
                   flags: 1 N matches ACTG, 2 Y matches CT, R matches AG, 3 both.
 
 
-11.  end_adapter_pos("", adapter) to set adapter. end_adapter_pos(seq) to check seq suffix against adapter prefix.
+(11)  end_adapter_pos("", adapter) to set adapter. end_adapter_pos(seq) to check seq suffix against adapter prefix.
                   To set adapter call with empty seq, subsequent calls use seq as only argument.
                   Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
