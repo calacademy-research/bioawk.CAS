@@ -2,7 +2,7 @@ Documentation of: translate gffattr systime md5 edit_dist hamming end_adapter_po
 
 ``translate`` ``gffattr``  added in github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``
 
-1. ``translate(nucl_str [, table_num])`` translates nucleotide string nucl_str. Returns the protein sequence.
+(1) ``translate(nucl_str [, table_num])`` translates nucleotide string nucl_str. Returns the protein sequence.
 
     bawk '{print ">"$name;print translate($seq)}' seq.fa.gz
 
@@ -10,7 +10,7 @@ can also use different translation tables. To translate using the bacteria/archa
 
     bawk '{print ">"$name;print translate($seq, 11)}' seq.fa.gz
 
-2. ``gffattr( attr_str, arr )`` parses the attr_str and puts the values in the arr argument. The attr_str is expected to be in the format of the gff attribute field.
+(2) ``gffattr( attr_str, arr )`` parses the attr_str and puts the values in the arr argument. The attr_str is expected to be in the format of the gff attribute field.
 This field has subfields delimited by semi-colons where each subfield has a name and a value after an equal sign.  Returns number of subfields, which is same as length(arr).  For example, if this is the first line of the gff file:
 
 ```
@@ -39,7 +39,7 @@ Name = Gm38527
 
 Remaining functions added in bioawk_cas
 
-3. ``systime()`` returns the number of milliseconds since the Linux epoch. This function is already in most other awk versions. Useful for timing.
+(3) ``systime()`` returns the number of milliseconds since the Linux epoch. This function is already in most other awk versions. Useful for timing.
 
 4. ``md5(str)`` returns the md5 code of the string argument. For example:
 ```
