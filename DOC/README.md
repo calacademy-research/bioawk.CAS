@@ -60,6 +60,9 @@ A few of the functions were added since it is difficult or slow using substr() t
 
 The search functions added are ``hamming`` ``edit_dist`` ``end_adapter_pos``
 
-``hamming( pattern, text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]] )`` compares the pattern of the first argument to the characters in the text of the second argument for the length of the pattern (up to any remaining characters in the text string). Comparison starts at position of the third optional argument, text_pos. Returns the number of mismatches. Default is to start at text string beginning which is text_pos 1.
+``hamming( pattern, text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]] )`` compares the pattern of the first argument to the characters in the text of the second argument for the length of the pattern (up to any remaining characters in the text string).
 
+Returns the number of mismatches.
+
+Comparison starts at position of the third optional argument, text_pos.  Default is to start at text string beginning which is text_pos 1.
 Optional arguments 4 and 5 allow for case insensitive comparisons and the ability to treat the N character as a wildcard. To use either of these a text_pos must be provided.
