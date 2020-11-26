@@ -8,7 +8,7 @@ Documentation of: translate gffattr systime md5 edit_dist hamming end_adapter_po
 
 can also use different translation tables. To translate using the bactera/archaea code:
 
-    bawk -c fastx '{print ">"$name;print translate($seq, 11)}' seq.fa.gz
+    bawk '{print ">"$name;print translate($seq, 11)}' seq.fa.gz
 
 ``gffattr( attr_str, arr )`` parses the attr_str and puts the values in the arr argument. The attr_str is expected to be in the format of the gff attribute field.
 This field has subfields delimited by semi-colons where each subfield has a name and a value after an equal sign.  Returns number of subfields, which is same as length(arr).  For example, if this is the first line of the gff file:
