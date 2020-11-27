@@ -1,6 +1,6 @@
 #### Functions added to bioawk ####
 
-``translate`` ``gffattr``  added in github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``
+``translate`` ``gffattr``  added in github.com/ctSkennerton/bioawk and ``bawk`` script added this repo is ``bioawk_cas -c fastx "$@"``
 
 (1) ``translate(nucl_str [, table_num])`` translates nucleotide string nucl_str. Returns the protein sequence.
 
