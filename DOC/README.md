@@ -4,7 +4,7 @@
 
     bawk '{print ">"$name;print translate($seq)}' seq.fa.gz
 
-can also use different translation tables. To translate using the bacteria/archaea code:
+can also use different translation tables. Here are the [genetic code numbers](genetic_codes.md). To translate using the bacteria/archaea code:
 
     bawk '{print ">"$name;print translate($seq, 11)}' seq.fa.gz
 
