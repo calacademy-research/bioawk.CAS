@@ -47,9 +47,11 @@ $ echo "example string to check" | bioawk_cas '{print; print "md5:", md5($0)}'
 example string to check
 md5: 59471d22e23e4198fd170cc7e4a58cbb
 ```
+**Character functions** ``modstr`` ``setat`` ``charcount`` ``applytochars``
+
 A few of the functions were added since it is difficult or slow using substr() to modify the characters of a string.
 
-(5) ``modstr`` takes 3 to 5 arguments ``modstr(str, start, length, [mod_type, str_length])`` and is used for in-place string variable case changing. mod_type 0 to lowercase, 1 to uppercase (default 0). Optional str_length faster for multiple calls, so the length isn't recalculated every call.
+(5) ``modstr`` takes 3 to 5 arguments ``modstr(str, start, length, [mod_type, str_length])`` and is used for in-place string variable case modification. mod_type 0 to lowercase, 1 to uppercase (default 0). Optional str_length faster for multiple calls, so the length isn't recalculated every call.
 
 (6) ``setat`` takes 3 or 4 arguments ``setat(str,pos,replacement[, optional repeat_count])`` and does an in-place overwrite of a string with another string. Often used with a single character replacement string. The modified string is not changed in length.
 
@@ -57,9 +59,7 @@ A few of the functions were added since it is difficult or slow using substr() t
 
 (8) ``applytochars(str, stmt_or_func)`` function calls the 2nd argument for each character in str with CHAR and ORD variables set.
 
-
-
-The search functions added are ``hamming`` ``edit_dist`` ``end_adapter_pos``
+**Search functions** ``hamming`` ``edit_dist`` ``end_adapter_pos``
 
 (9) ``hamming( pattern, text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]] )`` compares the pattern of the first argument to the characters in the text of the second argument for the length of the pattern (up to any remaining characters in the text string).
 
