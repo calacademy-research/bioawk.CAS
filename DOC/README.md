@@ -72,6 +72,8 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
 
 (10) ``edit_dist( max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]] )``
 
+           max_editdist: -1 means no max set. setting a max_editdist sppeds up the search.   
+
            mode: 0 complete match, 1 prefix match, 2 infix match (add 10 or 20 for CIGAR). Can use string len -1 for full length.
            
            flags: 1 N matches ACTG, 2 Y matches CT, R matches AG, 3 both.
