@@ -86,3 +86,6 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
        To set adapter call with empty seq, subsequent calls use seq as only argument.
        
        Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
+       
+``end_adapter_pos`` checks the last 16 nt of the sequence against the first 16 nt of the adapter seq, then the last 15 nt of the read for the first 15 nt of the adapter
+and so-on until the last 4 nt of the read is checked with first 4 adapter nt. we stop when an attempt has an acceptable hamming distance, which is 4 mismatches at 16 nt, 3 at 12 nt, then 2 at 8 nt down to all 4 matching at 4 nt.
