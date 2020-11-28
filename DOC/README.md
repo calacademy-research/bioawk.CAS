@@ -82,7 +82,9 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
 
 
 (11)  ``end_adapter_pos`` checks the last 16 nt of the sequence against the first 16 nt of the adapter seq, then the last 15 nt of the read for the first 15 nt of the adapter
-and so-on until the last 4 nt of the read is checked with first 4 adapter nt. we stop when an attempt has an acceptable hamming distance. 4 mismatches at 16 nt, 3 starting at 12 nt then 2 starting at 8 nt, 1 mismatch at 6 and 5 nt, no mismatch at 4 nt.
+and so-on until the last 4 nt of the read is checked with first 4 adapter nt. 
+
+Considered matched when an attempt has an acceptable hamming distance: 4 mismatches at 16 nt, 3 starting at 12 nt then 2 starting at 8 nt, 1 mismatch at 6 and 5 nt, no mismatch at 4 nt.
 
 ``end_adapter_pos("", adapter)`` to set adapter, subsequently ``end_adapter_pos(seq)`` to check seq suffix against adapter prefix.
 
