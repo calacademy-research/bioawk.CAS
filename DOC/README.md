@@ -91,6 +91,6 @@ Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
        To set adapter call with empty seq and adapter as 2nd arg. subsequent calls use seq as only argument.
        Only initial 16 bases of adapter are used.
        
-       end_adapter_pos("", "GATCGGAAGAGCACAC") # set to check first 16 bases of the TruSeq Indexed Adapter
+       end_adapter_pos("", "GATCGGAAGAGCACAC") # set to check first 16 bases of the TruSeq Adapter
        end_adapter_pos($seq)                   # will check the last 16 bases of $seq against the set adapter
        
