@@ -86,10 +86,10 @@ and so-on until the last 4 nt of the read is checked with first 4 adapter nt. we
 
 ``end_adapter_pos("", adapter)`` to set adapter, subsequently ``end_adapter_pos(seq)`` to check seq suffix against adapter prefix.
 
+Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
+
        To set adapter call with empty seq and adapter as 2nd arg. subsequent calls use seq as only argument.
        Only initial 16 bases of adapter are used.
-       
-       Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
        
        end_adapter_pos("", "GATCGGAAGAGCACAC") # set to check first 16 bases of the TruSeq Indexed Adapter
        end_adapter_pos($seq)                   # will check the last 16 bases of $seq against the set adapter
