@@ -1,4 +1,4 @@
-**bioawk_cas** is a fork of Connor Skennerton's fork https://github.com/ctSkennerton/bioawk of Heng Li's https://github.com/lh3/bioawk. Connor adds a ``translate`` function to the core bioawk extensions to be able to translate nucelotide into protein sequences and ``gffattr`` to put the field GFF line attributes into an array.
+**bioawk_cas** is a fork of Connor Skennerton's fork https://github.com/ctSkennerton/bioawk of Heng Li's https://github.com/lh3/bioawk. Connor adds a ``translate`` function to the core bioawk extensions to be able to translate nucelotide into protein sequences and ``gffattr`` to put a GFF line's attribute field subfields into an array.
 
 This version, bioawk_cas, adds several additional functions including linking in edlib to perform approximate searches from https://github.com/Martinsos/edlib. The original documention is below these notes.
 
@@ -34,7 +34,6 @@ Most of the new functions will provide a parameter overview if you use its name 
 bioawk_cas 'BEGIN{md5}'
 bioawk_cas: md5 takes a string argument and returns its md5 value.
 ```
-or
 ```
 bawk 'BEGIN{edit_dist}'
 bioawk_cas: edit_dist requires 4 to 7 arguments: max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]]
