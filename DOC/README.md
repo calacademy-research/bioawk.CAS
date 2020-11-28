@@ -83,6 +83,9 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
 
 (11)  ``end_adapter_pos("", adapter)`` to set adapter, subsequently ``end_adapter_pos(seq)`` to check seq suffix against adapter prefix.
 
+``end_adapter_pos`` checks the last 16 nt of the sequence against the first 16 nt of the adapter seq, then the last 15 nt of the read for the first 15 nt of the adapter
+and so-on until the last 4 nt of the read is checked with first 4 adapter nt. we stop when an attempt has an acceptable hamming distance, which is 4 mismatches at 16 nt, 3 at 12 nt then 2 at 8 nt then 1 mismatch at 5 nt down to no mismatch at 4 nt.
+
        To set adapter call with empty seq and adapter as 2nd arg. subsequent calls use seq as only argument.
        Only initial 16 bases of adapter are used.
        
@@ -91,5 +94,3 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
        end_adapter_pos("", "GATCGGAAGAGCACAC") # set to check first 16 bases of the TruSeq Indexed Adapter
        end_adapter_pos($seq)                   # will check the last 16 bases of $seq against the set adapter
        
-``end_adapter_pos`` checks the last 16 nt of the sequence against the first 16 nt of the adapter seq, then the last 15 nt of the read for the first 15 nt of the adapter
-and so-on until the last 4 nt of the read is checked with first 4 adapter nt. we stop when an attempt has an acceptable hamming distance, which is 4 mismatches at 16 nt, 3 at 12 nt then 2 at 8 nt then 1 mismatch at 5 nt down to no mismatch at 4 nt.
