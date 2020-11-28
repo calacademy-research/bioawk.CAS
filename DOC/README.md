@@ -67,7 +67,7 @@ A few of the functions were added since it is difficult or slow using substr() t
 
 Returns the number of mismatches.
 
-Comparison starts at position of the third optional argument, text_pos.  Default is to start at text string beginning which is text_pos 1.
+Comparison starts at position of the optional third argument, text_pos.  Default is to start at text string beginning which is text_pos 1.
 Optional arguments 4 and 5 allow for case insensitive comparisons and the ability to treat the N character as a wildcard. To use either of these a text_pos must be provided.
 
 (10) ``edit_dist( max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]] )``
