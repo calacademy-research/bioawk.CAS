@@ -83,7 +83,8 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
 
 (11)  ``end_adapter_pos("", adapter)`` to set adapter, subsequently ``end_adapter_pos(seq)`` to check seq suffix against adapter prefix.
 
-       To set adapter call with empty seq and adapter as 2nd arg. subsequent calls use seq as only argument. first 16 bases of adapter are used.
+       To set adapter call with empty seq and adapter as 2nd arg. subsequent calls use seq as only argument.
+       Only initial 16 bases of adapter are used.
        
        Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
        
