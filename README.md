@@ -45,7 +45,7 @@ To create the **bioawk_cas** program, just run ``make`` in the **bioawk.CAS** di
 *Note: An edlib object file for Linux 86_64 systems and one for macOS can be used by Makefile if edlib.obj does not exist.
 If these do not work, clone the edlib repo https://github.com/Martinsos/edlib and after running ``make`` copy edlib.obj into the **bioawk.CAS** repo directory.*
 
-Examples and function documentation in DOC folder.
+Examples and function documentation in [DOC](DOC) folder.
 
 ---
 **Here is the original documentation**
