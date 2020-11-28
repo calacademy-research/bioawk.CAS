@@ -92,4 +92,4 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
        end_adapter_pos($seq)                   # will check the last 16 bases of $seq against the set adapter
        
 ``end_adapter_pos`` checks the last 16 nt of the sequence against the first 16 nt of the adapter seq, then the last 15 nt of the read for the first 15 nt of the adapter
-and so-on until the last 4 nt of the read is checked with first 4 adapter nt. we stop when an attempt has an acceptable hamming distance, which is 4 mismatches at 16 nt, 3 at 12 nt then 2 at 8 nt then 1 mismatch at 5 nt down to all no mismatches at 4 nt.
+and so-on until the last 4 nt of the read is checked with first 4 adapter nt. we stop when an attempt has an acceptable hamming distance, which is 4 mismatches at 16 nt, 3 at 12 nt then 2 at 8 nt then 1 mismatch at 5 nt down to no mismatch at 4 nt.
