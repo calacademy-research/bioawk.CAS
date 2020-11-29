@@ -89,10 +89,30 @@ Considered matched when an attempt has an acceptable hamming distance: 4 mismatc
 ``end_adapter_pos("", adapter)`` to set adapter, subsequently ``end_adapter_pos(seq)`` to check seq suffix against adapter prefix.
 
 Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
+```
+To set adapter call with empty seq and adapter as 2nd arg. subsequent calls use seq as only argument.
+Only initial 16 bases of adapter are used.
+       
+end_adapter_pos("", "GATCGGAAGAGCACAC") # set to check first 16 bases of the TruSeq Adapter
+end_adapter_pos($seq)                   # will check the last 16 bases of $seq against the set adapter
+```    
+For example
+```
+bawk 'BEGIN{end_adapter_pos("", "GATCGGAAGAGCACAC")}
 
-       To set adapter call with empty seq and adapter as 2nd arg. subsequent calls use seq as only argument.
-       Only initial 16 bases of adapter are used.
-       
-       end_adapter_pos("", "GATCGGAAGAGCACAC") # set to check first 16 bases of the TruSeq Adapter
-       end_adapter_pos($seq)                   # will check the last 16 bases of $seq against the set adapter
-       
+   (rslt=end_adapter_pos($seq)) > 0 {
+      print $name, "rec " NR":  ", rslt
+      
+ }' reads_L1_R1.fq.gz
+ ```
+ outputs in part
+ ```
+E00489:558:H7N5LCCX2:4:1101:24718:1344  rec 94:         139 11 3
+E00489:558:H7N5LCCX2:4:1101:27600:1344  rec 103:        143 7 0
+E00489:558:H7N5LCCX2:4:1101:23531:1397  rec 165:        146 4 0
+E00489:558:H7N5LCCX2:4:1101:26951:1415  rec 189:        134 16 3
+E00489:558:H7N5LCCX2:4:1101:23429:1432  rec 217:        135 15 0
+E00489:558:H7N5LCCX2:4:1101:25733:1450  rec 245:        143 7 2
+E00489:558:H7N5LCCX2:4:1101:24698:1485  rec 287:        145 5 0
+ ```
+ Top line tells us record 94 has the first 11 bases of the adapter matching with 3 errors starting at position 139 of the read.
