@@ -97,7 +97,7 @@ bawk 'BEGIN{end_adapter_pos("", "GATCGGAAGAGCACAC")} # set to check first 16 bas
    (rslt=end_adapter_pos($seq)) > 0 {                # will check the last 16 bases of $seq against the set adapter
       print $name, "rec " NR":  ", rslt
       
- }' reads_L1_R1.fq.gz
+ }' reads_L4_R1.fq.gz
  ```
  outputs in part
  ```
