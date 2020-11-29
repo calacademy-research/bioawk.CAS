@@ -116,3 +116,5 @@ E00489:558:H7N5LCCX2:4:1101:25733:1450  rec 245:        143 7 2
 E00489:558:H7N5LCCX2:4:1101:24698:1485  rec 287:        145 5 0
  ```
  Top line tells us record 94 has the first 11 bases of the adapter matching with 3 errors starting at position 139 of the read.
+ 
+ I have used this with libraries, especially mate-pair, after trimming with Trimmomatic to do an additional clean-up at the end of reads when the matched adapter is below the horizon of the other tool.
