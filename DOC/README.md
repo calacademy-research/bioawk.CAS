@@ -95,7 +95,9 @@ For example
 bawk 'BEGIN{end_adapter_pos("", "GATCGGAAGAGCACAC")} # set to check first 16 bases of the TruSeq Indexed Adapter
 
    (rslt=end_adapter_pos($seq)) > 0 {                # will check the last 16 bases of $seq against the set adapter
-      print $name, "rec " NR":  ", rslt
+      split(rslt, ar, " ")
+      pos = ar[1]; mtch = ar[2]; eddist = ar[3]
+      printf "%s\trec %s:  \t%s %s %s\n", $name, NR, pos, mtch, eddist
       
  }' reads_L4_R1.fq.gz
  ```
