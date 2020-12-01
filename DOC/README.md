@@ -59,7 +59,7 @@ A few of the functions were added since it is difficult or slow using substr() t
 
 (7) ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
 
-(8) ``applytochars(str, stmt_or_func [,...])`` function calls the 2nd and any other arguments for each character in str with CHAR and ORD variables set.
+(8) ``applytochars(str, stmt_or_func [,...])`` calls the 2nd and any other arguments for each character in str with CHAR and ORD variables set.
 
 **Search functions** ``hamming`` ``edit_dist`` ``end_adapter_pos``
 
