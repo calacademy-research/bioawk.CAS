@@ -94,7 +94,7 @@ For example
 ```
 bawk 'BEGIN{end_adapter_pos("", "GATCGGAAGAGCACAC")} # set to check first 16 bases of the TruSeq Indexed Adapter
 
-   (rslt=end_adapter_pos($seq)) > 0 {                # will check the last 16 bases of $seq against the set adapter
+   (rslt=end_adapter_pos($seq)) > 0 {                # will check the last 16 to last 4 bases of $seq against the adapter beginning
    
       split(rslt, ar, " ")
       pos = ar[1]; mtch = ar[2]; eddist = ar[3]
