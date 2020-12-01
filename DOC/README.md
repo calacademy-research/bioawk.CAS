@@ -76,7 +76,7 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
 
            mode: 0 complete match, 1 prefix match, 2 infix match (add 10 or 20 for CIGAR). Can use string len -1 for full length.
            
-           flags: 1 N matches ACTG, 2 Y matches CT, R matches AG, 3 both.
+           flags: 1 N matches ACTG; 2 Y matches CT, R matches AG; 3 both.
            
            Returns string starting with edit distance, -1 for no match, 0 for perfect and other values.
 
