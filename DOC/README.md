@@ -98,6 +98,7 @@ bawk 'BEGIN{end_adapter_pos("", "GATCGGAAGAGCACAC")} # set to check first 16 bas
    
       split(rslt, ar, " ")
       pos = ar[1]; mlen = ar[2]; mismatches = ar[3]
+      
       printf "%s\trec %s:  \t%s %s %s\n", $name, NR, pos, mlen, mismatches
       
  }' reads_L4_R1.fq.gz
