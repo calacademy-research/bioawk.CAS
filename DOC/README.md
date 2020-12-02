@@ -60,6 +60,21 @@ A few of the functions were added since it is difficult or slow using substr() t
 (7) ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
 
 (8) ``applytochars(str, stmt_or_func [,...])`` calls the 2nd and other arguments for each character in str with CHAR and ORD variables set.
+```
+bioawk_cas '
+   function apply(){if(CHAR=="N")Ns++}
+   function prt(s){print s}
+   BEGIN{
+      str="AaNBCNdEfNGHNINNJ"
+
+      # applytochars(str, apply())  # example just using the function to count the Ns
+      applytochars(str, Ns += CHAR=="N", prt(CHAR ":" ORD ":" or(ORD, 32))) # example using a statement and a function
+
+      # CHAR and ORD still set to last char in string
+      print "\nLast CHAR is:",CHAR, ORD, "or32", or(ORD, 32)
+      print "tot Ns:", Ns
+}'
+```
 
 **Search functions** ``hamming`` ``edit_dist`` ``end_adapter_pos``
 
