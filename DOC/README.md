@@ -51,7 +51,7 @@ md5: 59471d22e23e4198fd170cc7e4a58cbb
 ```
 **Character functions** ``modstr`` ``setat`` ``charcount`` ``applytochars``
 
-A few of the functions were added since it is difficult or slow using substr() to modify the characters of a string.
+A few of the functions were added since it is difficult or slow using substr() to modify or access the characters of a string.
 
 (5) ``modstr`` takes 3 to 5 arguments ``modstr(str, start, length, [mod_type, str_length])`` and is used for in-place string variable case modification. mod_type 0 to lowercase, 1 to uppercase (default 0). Optional str_length faster for multiple calls, so the length isn't recalculated every call.
 
@@ -71,7 +71,7 @@ bioawk_cas '
       applytochars(str, Ns += CHAR=="N", prt(CHAR ":" ORD ":" or(ORD, 32))) # example using a statement and a function
 
       # CHAR and ORD still set to last char in string
-      print "\nLast CHAR is:",CHAR, ORD, "or32", or(ORD, 32)
+      print "\nLast CHAR is:", CHAR, ORD, "or32", or(ORD, 32)
       print "tot Ns:", Ns
 }'
 ```
