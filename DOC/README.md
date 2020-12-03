@@ -59,7 +59,7 @@ A few of the functions were added since it is difficult or slow using substr() t
 
 (7) ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
 ```
-bioawk_cas 'BEGIN{
+bioawk_cas 'BEGIN{OFS=":"
    exmp="AaGBCNdEfaGHNINNJ"
    charcount(exmp, arr)
    for(c in arr)
