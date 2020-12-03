@@ -58,6 +58,29 @@ A few of the functions were added since it is difficult or slow using substr() t
 (6) ``setat`` takes 3 or 4 arguments ``setat(str,pos,replacement[, optional repeat_count])`` and does an in-place overwrite of a string with another string. Often used with a single character replacement string. The modified string is not changed in length.
 
 (7) ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
+```
+bioawk_cas 'BEGIN{
+   exmp="AaGBCNdEfaGHNINNJ"
+   charcount(exmp, arr)
+   for(c in arr)
+      print c, arr[c]
+}' | sort -k2,2nr
+```
+gives
+```
+N 4
+G 2
+a 2
+A 1
+B 1
+C 1
+E 1
+H 1
+I 1
+J 1
+d 1
+f 1
+```
 
 (8) ``applytochars(str, stmt_or_func [,...])`` calls the 2nd and other arguments for each character in str with CHAR and ORD variables set.
 ```
