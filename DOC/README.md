@@ -64,22 +64,12 @@ bioawk_cas 'BEGIN{
    charcount(exmp, arr)
    for(c in arr)
       print c, arr[c]
-}' | sort -k2,2nr
+}' |  sort -t ":" -k2,2nr | tr "\n" " "
+
 ```
 gives
 ```
-N 4
-G 2
-a 2
-A 1
-B 1
-C 1
-E 1
-H 1
-I 1
-J 1
-d 1
-f 1
+N:4 G:2 a:2 A:1 B:1 C:1 E:1 H:1 I:1 J:1 d:1 f:1
 ```
 
 (8) ``applytochars(str, stmt_or_func [,...])`` calls the 2nd and other arguments for each character in str with CHAR and ORD variables set.
