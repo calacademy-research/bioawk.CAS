@@ -98,6 +98,29 @@ bioawk_cas '
       print "tot Ns:", Ns
 }'
 ```
+gives
+```
+A:65:97
+a:97:97
+N:78:110
+B:66:98
+C:67:99
+N:78:110
+d:100:100
+E:69:101
+f:102:102
+N:78:110
+G:71:103
+H:72:104
+N:78:110
+I:73:105
+N:78:110
+N:78:110
+J:74:106
+
+Last CHAR is: J 74 or32 106
+tot Ns: 6
+```
 
 **Search functions** ``hamming`` ``edit_dist`` ``end_adapter_pos``
 
