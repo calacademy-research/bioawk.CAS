@@ -64,7 +64,7 @@ edlib.o:	edlib.h
 ifeq ($(UNAME),Darwin)
 	cp edlib.o.mac edlib.o
 else ifeq ($(UNAME),Linux)
-        cp edlib.o.linux edlib.o
+	cp edlib.o.linux edlib.o
 else
 	cp edlib.o.orig edlib.o
 endif
