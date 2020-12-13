@@ -27,7 +27,8 @@ bioawk_cas 'NR==1{
       
    print "\nOutput in same order as attr string"
    flds = gffattr($NF, arr, pos)
-   for(f = 1; f <= flds; f++) printf "%d\t%s\t%s\n", f, pos[f], arr[ pos[f] ]
+   for(f = 1; f <= flds; f++)
+      printf "%d\t%s\t%s\n", f, pos[f], arr[ pos[f] ]
 }' example.gff
 ```
 outputs
