@@ -271,35 +271,39 @@ void bio_attribute_inner(char * tag, char ** key, char ** value, char **sep_loc)
     *value = ++tag;
 }
 
-void bio_attribute(Cell * x, Cell * ap, Cell * y) {
-    /* attribute(x, array [, format])
+void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
+    /* attribute(x, array [, pos_array])
             x, which is a string with the tags or attributes field
               of either gff, or sam format.
-            array, which is the array created by parsing the string
-            format, an optional format, which can be gff or sam. The
-              default is to infer the format from the current bio format
-              set via the -c commandline option. Specifying the format
-              allows you to overrite this or to use the function when
-              -c isn't in effect.
+            array, which is the array created by parsing the string.
+            optional pos_array key is field number and value is the field's key in array.
 
-            will return the number of keys in the array.
-          */
+            will return the number of keys in the array in y.
+    */
 
-    char *origS, *s, sep, *t, temp;
+    char *origS, *s, sep, sep2, *t, temp;
     origS = s = strdup(getsval(x));
-    sep = ';';
+    sep = ';'; sep2 = '=';
     int n;
     n = 0;
+	
+	if (*s == '.' && (*(s+1)=='\0' || *(s+1)==' ')) // empty field can be represented by a dot
+	   *s = '\0';  // drop through to report 0 fields
 
-    for (;;) {
-        n++;
+    while (*s != '\0') {  // make sure not to process empty string and ignore semi-colon at end of string
+		if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {  // handle doubled semi-colons and partial handling for other malformed items
+			s++;
+			continue;
+		}
+		
+        n++;  // increment count of fields
         t = s;
         while (*s != sep && *s != '\n' && *s != '\0')
             s++;
 
         /*we save the character which should be sep and then change it
         to the null character to terminate the string. After we set the
-        string in the dictonary we set the charent character back*/
+        string in the dictionary we set the charent character back*/
         temp = *s;
         *s = '\0';
 
@@ -309,13 +313,21 @@ void bio_attribute(Cell * x, Cell * ap, Cell * y) {
             setsymtab(key, value, atof(value), STR|NUM, (Array *) ap->sval);
         else
             setsymtab(key, value, 0.0, STR, (Array *) ap->sval);
+			
+		if (posp) {
+			char numstr[50];
+			sprintf(numstr, "%d", n);
+			setsymtab(numstr, key, 0.0, STR, (Array *) posp->sval);
+		}
+		
+        *temp2 = sep2;
+
         *s = temp;
-        *temp2 = '=';
-        if (*s++ == 0)
+        if (*s++ == '\0')
             break;
     }
     free(origS);
-    if (y != NULL) {
+    if (y != NULL) {  // y is the variable used to return the result, in this case the number of attribute fields
         y->tval = NUM;
         y->fval = n;
         setfval(y, (Awkfloat) n);
@@ -463,17 +475,23 @@ Cell *bio_func(int f, Cell *x, Node **a)
         setsval(y, out);
         free(out);
     } else if (f == BIO_GFFATTR) {
-	    Cell * ap = NULL;
+	    Cell * ap = NULL; Cell * posp = NULL;
         if (a[1]->nnext != 0) {
             ap = execute(a[1]->nnext);
+			if (a[1]->nnext->nnext != 0) {  // 3rd arg names array for holding field positions pos[1], pos[2] etc.
+				posp = execute(a[1]->nnext->nnext);
+				freesymtab(posp);
+				posp->tval &= ~STR; posp->tval |= ARR;
+				posp->sval = (char *) makesymtab(NSYMTAB);
+			}
         } else {
-            FATAL("gffattr() requires at least two arguments: attr_str and array");
+            FATAL("gffattr() requires at least two arguments: attr_str, array and allows an optional pos_array");
         }
         freesymtab(ap);
         ap->tval &= ~STR;
         ap->tval |= ARR;
         ap->sval = (char *) makesymtab(NSYMTAB);
-        bio_attribute(x, ap, y);
+        bio_attribute(x, ap, posp, y);
     } else if (f == BIO_FSYSTIME) { /* 12Aug2019 JBH_CAS add systime() that gawk has had for awhile */
         time_t lclock;
         (void) time(& lclock);

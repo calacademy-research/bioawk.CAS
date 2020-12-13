@@ -22,7 +22,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 ****************************************************************/
 
-const char	*version = "version 20110810 [bioawk_cas 20200526]";
+const char	*version = "version 20110810 [bioawk_cas 20201213]";
 const char	*usage_str = "\nusage: %s [-F fs] [-v var=value] [-c fmt] [-tH] [-f progfile | 'prog'] [file ...]\n\n";
 
 #define DEBUG
