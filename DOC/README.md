@@ -10,18 +10,26 @@ can also use different translation tables. Here are the [genetic code table numb
 
     bawk '{print ">"$name;print translate($seq, 11)}' seq.fa.gz
 
-(2) ``gffattr( attr_str, arr )`` parses the attr_str and puts the values in the arr argument. The attr_str is expected to be in the format of the gff attribute field.
-This field has subfields delimited by semi-colons where each subfield has a name and a value after an equal sign.  Returns number of subfields, which is same as length(arr).  For example, if this is the first line of the gff file:
+(2) ``gffattr( attr_str, arr[, pos_arr])`` parses the attr_str and puts the values in the arr argument. The attr_str is expected to be in the format of the gff attribute field.
+This field has subfields delimited by semi-colons where each subfield has a name and a value after an equal sign.
+Returns number of subfields, which is same as length(arr). Optional pos_array will put the first key value in pos_arr[1], second in pos_arr[2], etc.
+The pos_arr option added in bioawk_cas.
+For example, if this is the first line of the gff file:
 
 ```
 NC_000085.6     Gnomon  gene    3064929 3075825 .       -       .       ID=gene-Gm38527;Dbxref=GeneID:102640308,MGI:MGI:5621412;Name=Gm38527;gbkey=Gene;gene=Gm38527;gene_biotype=lncRNA
 ```
 ```
-bioawk 'NR==1{
+bioawk_cas 'NR==1{
    gffattr($NF, arr)
    print arr["ID"] " is the ID\n"
    for(subfield in arr)
       print subfield " = " arr[subfield]
+      
+   print "\nOutput in same order as attr string"
+   flds = gffattr($NF, arr, pos)
+   for(f = 1; f <= flds; f++)
+      printf "%d\t%s\t%s\n", f, pos[f], arr[ pos[f] ]
 }' example.gff
 ```
 outputs
@@ -35,6 +43,13 @@ Dbxref = GeneID:102640308,MGI:MGI:5621412
 gene = Gm38527
 Name = Gm38527
 
+Output in same order as attr string
+1	ID	gene-Gm38527
+2	Dbxref	GeneID:102640308,MGI:MGI:5621412
+3	Name	Gm38527
+4	gbkey	Gene
+5	gene	Gm38527
+6	gene_biotype	lncRNA
 ```
 
 Remaining functions have been added in bioawk_cas
