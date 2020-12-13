@@ -287,14 +287,14 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
     int n;
     n = 0;
 	
-	if (*s == '.' && (*(s+1)=='\0' || *(s+1)==' ')) // empty field can be represented by a dot
-	   *s = '\0';  // drop through to report 0 fields
+    if (*s == '.' && (*(s+1)=='\0' || *(s+1)==' ')) // empty field can be represented by a dot
+        *s = '\0';  // drop through to report 0 fields
 
     while (*s != '\0') {  // make sure not to process empty string and ignore semi-colon at end of string
-		if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {  // handle doubled semi-colons and partial handling for other malformed items
-			s++;
-			continue;
-		}
+        if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {  // handle doubled semi-colons and partial handling for other malformed items
+            s++;
+            continue;
+        }
 		
         n++;  // increment count of fields
         t = s;
@@ -314,11 +314,11 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
         else
             setsymtab(key, value, 0.0, STR, (Array *) ap->sval);
 			
-		if (posp) {
-			char numstr[50];
-			sprintf(numstr, "%d", n);
-			setsymtab(numstr, key, 0.0, STR, (Array *) posp->sval);
-		}
+        if (posp) {
+            char numstr[50];
+            sprintf(numstr, "%d", n);
+            setsymtab(numstr, key, 0.0, STR, (Array *) posp->sval);
+        }
 		
         *temp2 = sep2;
 
