@@ -313,13 +313,13 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
             setsymtab(key, value, atof(value), STR|NUM, (Array *) ap->sval);
         else
             setsymtab(key, value, 0.0, STR, (Array *) ap->sval);
-			
+
         if (posp) {
             char numstr[50];
-            sprintf(numstr, "%d", n);
+            snprintf(numstr, sizeof(numstr), "%d", n);
             setsymtab(numstr, key, 0.0, STR, (Array *) posp->sval);
         }
-		
+
         *temp2 = sep2;
 
         *s = temp;
@@ -475,17 +475,17 @@ Cell *bio_func(int f, Cell *x, Node **a)
         setsval(y, out);
         free(out);
     } else if (f == BIO_GFFATTR) {
-	    Cell * ap = NULL; Cell * posp = NULL;
+        Cell * ap = NULL; Cell * posp = NULL;
         if (a[1]->nnext != 0) {
             ap = execute(a[1]->nnext);
-			if (a[1]->nnext->nnext != 0) {  // 3rd arg names array for holding field positions pos[1], pos[2] etc.
-				posp = execute(a[1]->nnext->nnext);
-				freesymtab(posp);
-				posp->tval &= ~STR; posp->tval |= ARR;
-				posp->sval = (char *) makesymtab(NSYMTAB);
-			}
+            if (a[1]->nnext->nnext != 0) {  // 3rd arg names array for holding field positions pos[1], pos[2] etc.
+                posp = execute(a[1]->nnext->nnext);
+                freesymtab(posp);
+                posp->tval &= ~STR; posp->tval |= ARR;
+                posp->sval = (char *) makesymtab(NSYMTAB);
+            }
         } else {
-            FATAL("gffattr() requires at least two arguments: attr_str, array and allows an optional pos_array");
+            FATAL("gffattr(attr_str, array[, pos_array]) requires at least two arguments and allows an optional third");
         }
         freesymtab(ap);
         ap->tval &= ~STR;
