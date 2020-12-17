@@ -276,17 +276,17 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
             x, which is a string with the tags or attributes field
               of either gff, or sam format.
             array, which is the array created by parsing the string.
-            optional pos_array key is field number and value is the field's key in array.
+            optional pos_array, key is field number and value is the field's key in array.
 
             will return the number of keys in the array in y.
     */
 
-    char *origS, *s, sep, sep2, *t, temp;
+    char *origS, *s, sep, sep2, *sep2_loc, *key, *value, temp;
     origS = s = strdup(getsval(x));
     sep = ';'; sep2 = '=';
     int n;
     n = 0;
-	
+
     if (*s == '.' && (*(s+1)=='\0' || *(s+1)==' ')) // empty field can be represented by a dot
         *s = '\0';  // drop through to report 0 fields
 
@@ -295,20 +295,30 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
             s++;
             continue;
         }
-		
-        n++;  // increment count of fields
-        t = s;
-        while (*s != sep && *s != '\n' && *s != '\0')
-            s++;
 
-        /*we save the character which should be sep and then change it
+        key = s; sep2_loc = NULL;
+        while (*s != sep && *s != '\n' && *s != '\0') {
+            if (*s == sep2 && sep2_loc==NULL)  // first equal sign encountered is value separator
+                sep2_loc = s;
+            s++;
+        }
+
+        if (sep2_loc == NULL) // if no equal sign, then invalid format
+            continue;
+
+        n++;  // increment count of fields
+
+        /*we save the character which should be sep or '\0', then change it
         to the null character to terminate the string. After we set the
-        string in the dictionary we set the charent character back*/
+        string in the dictionary we set the character back*/
         temp = *s;
         *s = '\0';
 
-        char *key, *value, *temp2;
-        bio_attribute_inner(t, &key, &value, &temp2);
+        /* ditto with value separator, so key ends with null char */
+        *sep2_loc = '\0';
+
+        value = sep2_loc; value++;
+        // bio_attribute_inner(t, &key, &value, &temp2);
         if (is_number(value))
             setsymtab(key, value, atof(value), STR|NUM, (Array *) ap->sval);
         else
@@ -320,7 +330,7 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
             setsymtab(numstr, key, 0.0, STR, (Array *) posp->sval);
         }
 
-        *temp2 = sep2;
+        *sep2_loc = sep2;
 
         *s = temp;
         if (*s++ == '\0')
