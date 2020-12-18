@@ -12,13 +12,13 @@ extern char *md5str(uint8_t *msg, size_t len);
 int bio_flag = 0, bio_fmt = BIO_NULL;
 
 static const char *col_defs[][15] = { /* FIXME: this is convenient, but not memory efficient. Shouldn't matter. */
-	{"header", NULL},
-	{"bed", "chrom", "start", "end", "name", "score", "strand", "thickstart", "thickend", "rgb", "blockcount", "blocksizes", "blockstarts", NULL},
-	{"sam", "qname", "flag", "rname", "pos", "mapq", "cigar", "rnext", "pnext", "tlen", "seq", "qual", NULL},
-	{"vcf", "chrom", "pos", "id", "ref", "alt", "qual", "filter", "info", NULL},
-	{"gff", "seqname", "source", "feature", "start", "end", "score", "filter", "strand", "group", "attribute", NULL},
-	{"fastx", "name", "seq", "qual", "comment", NULL},
-	{NULL}
+    {"header", NULL},
+    {"bed", "chrom", "start", "end", "name", "score", "strand", "thickstart", "thickend", "rgb", "blockcount", "blocksizes", "blockstarts", NULL},
+    {"sam", "qname", "flag", "rname", "pos", "mapq", "cigar", "rnext", "pnext", "tlen", "seq", "qual", NULL},
+    {"vcf", "chrom", "pos", "id", "ref", "alt", "qual", "filter", "info", NULL},
+    {"gff", "seqname", "source", "feature", "start", "end", "score", "filter", "strand", "group", "attribute", NULL},
+    {"fastx", "name", "seq", "qual", "comment", NULL},
+    {NULL}
 };
 
 static const char *tab_delim = "nyyyyyn", *hdr_chr = "\0#@##\0\0";
@@ -29,75 +29,75 @@ static const char *tab_delim = "nyyyyyn", *hdr_chr = "\0#@##\0\0";
 
 static void set_colnm_aux(const char *p, int col)
 {
-	const char *q;
-	char *r = 0;
-	Cell *x;
-	for (q = p; *q; ++q) /* test if there are punctuations */
-		if (ispunct(*q) && *q != '_') break;
-	if (*q || isdigit(*p)) { /* there are punctuations or the first is digit */
-		char *qq;
-		r = malloc(strlen(p) + 2);
-		if (isdigit(*p)) {
-			*r = '_';
-			strcpy(r + 1, p);
-		} else strcpy(r, p);
-		for (qq = r; *qq; ++qq)
-			if (ispunct(*qq)) *qq = '_';
-		q = r;
-	} else q = p;
-	if ((x = lookup(q, symtab)) != NULL) /* do not add if not appear in the program */
-		setfval(x, (Awkfloat)col);
-	if (r) free(r);
+    const char *q;
+    char *r = 0;
+    Cell *x;
+    for (q = p; *q; ++q) /* test if there are punctuations */
+        if (ispunct(*q) && *q != '_') break;
+    if (*q || isdigit(*p)) { /* there are punctuations or the first is digit */
+        char *qq;
+        r = malloc(strlen(p) + 2);
+        if (isdigit(*p)) {
+            *r = '_';
+            strcpy(r + 1, p);
+        } else strcpy(r, p);
+        for (qq = r; *qq; ++qq)
+            if (ispunct(*qq)) *qq = '_';
+        q = r;
+    } else q = p;
+    if ((x = lookup(q, symtab)) != NULL) /* do not add if not appear in the program */
+        setfval(x, (Awkfloat)col);
+    if (r) free(r);
 }
 
 int bio_get_fmt(const char *s)
 {
-	int i, j;
-	if (strcmp(s, "hdr") == 0) return BIO_HDR;
-	for (i = 0; col_defs[i][0]; ++i)
-		if (strcmp(s, col_defs[i][0]) == 0) return i;
-	for (i = 1; col_defs[i][0]; ++i) {
-		printf("%s:\n\t", col_defs[i][0]);
-		for (j = 1; col_defs[i][j]; ++j)
-			printf("%d:%s ", j, col_defs[i][j]);
-		putchar('\n');
-	}
-	return BIO_NULL;
+    int i, j;
+    if (strcmp(s, "hdr") == 0) return BIO_HDR;
+    for (i = 0; col_defs[i][0]; ++i)
+        if (strcmp(s, col_defs[i][0]) == 0) return i;
+    for (i = 1; col_defs[i][0]; ++i) {
+        printf("%s:\n\t", col_defs[i][0]);
+        for (j = 1; col_defs[i][j]; ++j)
+            printf("%d:%s ", j, col_defs[i][j]);
+        putchar('\n');
+    }
+    return BIO_NULL;
 }
 
 int bio_skip_hdr(const char *r)
 {
-	if (bio_fmt <= BIO_HDR) return 0;
-	if (*r && *r == hdr_chr[bio_fmt]) {
-		if (bio_flag & BIO_SHOW_HDR) puts(r);
-		return 1;
-	} else return 0;
+    if (bio_fmt <= BIO_HDR) return 0;
+    if (*r && *r == hdr_chr[bio_fmt]) {
+        if (bio_flag & BIO_SHOW_HDR) puts(r);
+        return 1;
+    } else return 0;
 }
 
 void bio_set_colnm()
 {
-	int i;
-	if (bio_fmt == BIO_NULL) {
-		return;
-	} else if (bio_fmt == BIO_HDR) {
-		char *p, *q, c;
-		for (p = record; *p && isspace(*p); ++p); /* skip leading spaces */
-		for (i = 1, q = p; *q; ++q) {
-			if (!isspace(*q)) continue;
-			c = *q; /* backup the space */
-			*q = 0; /* terminate the field */
-			set_colnm_aux(p, i);
-			*q = c; /* change back */
-			++i;
-			for (p = q + 1; *p && isspace(*p); ++p); /* skip contiguous spaces */
-			q = p;
-		}
-		set_colnm_aux(p, i); /* the last column */
-	} else {
-		for (i = 0; col_defs[bio_fmt][i] != NULL; ++i)
-			set_colnm_aux(col_defs[bio_fmt][i], i);
-		if (tab_delim[bio_fmt] == 'y') *FS = *OFS = "\t";
-	}
+    int i;
+    if (bio_fmt == BIO_NULL) {
+        return;
+    } else if (bio_fmt == BIO_HDR) {
+        char *p, *q, c;
+        for (p = record; *p && isspace(*p); ++p); /* skip leading spaces */
+        for (i = 1, q = p; *q; ++q) {
+            if (!isspace(*q)) continue;
+            c = *q; /* backup the space */
+            *q = 0; /* terminate the field */
+            set_colnm_aux(p, i);
+            *q = c; /* change back */
+            ++i;
+            for (p = q + 1; *p && isspace(*p); ++p); /* skip contiguous spaces */
+            q = p;
+        }
+        set_colnm_aux(p, i); /* the last column */
+    } else {
+        for (i = 0; col_defs[bio_fmt][i] != NULL; ++i)
+            set_colnm_aux(col_defs[bio_fmt][i], i);
+        if (tab_delim[bio_fmt] == 'y') *FS = *OFS = "\t";
+    }
 }
 
 /**********************
@@ -105,20 +105,20 @@ void bio_set_colnm()
  **********************/
 
 static char comp_tab[] = {
-	  0,   1,	2,	 3,	  4,   5,	6,	 7,	  8,   9,  10,	11,	 12,  13,  14,	15,
-	 16,  17,  18,	19,	 20,  21,  22,	23,	 24,  25,  26,	27,	 28,  29,  30,	31,
-	 32,  33,  34,	35,	 36,  37,  38,	39,	 40,  41,  42,	43,	 44,  45,  46,	47,
-	 48,  49,  50,	51,	 52,  53,  54,	55,	 56,  57,  58,	59,	 60,  61,  62,	63,
-	 64, 'T', 'V', 'G', 'H', 'E', 'F', 'C', 'D', 'I', 'J', 'M', 'L', 'K', 'N', 'O',
-	'P', 'Q', 'Y', 'S', 'A', 'A', 'B', 'W', 'X', 'R', 'Z',	91,	 92,  93,  94,	95,
-	 64, 't', 'v', 'g', 'h', 'e', 'f', 'c', 'd', 'i', 'j', 'm', 'l', 'k', 'n', 'o',
-	'p', 'q', 'y', 's', 'a', 'a', 'b', 'w', 'x', 'r', 'z', 123, 124, 125, 126, 127
+      0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,
+     16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
+     32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,
+     48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
+     64, 'T', 'V', 'G', 'H', 'E', 'F', 'C', 'D', 'I', 'J', 'M', 'L', 'K', 'N', 'O',
+    'P', 'Q', 'Y', 'S', 'A', 'A', 'B', 'W', 'X', 'R', 'Z',  91,  92,  93,  94,  95,
+     64, 't', 'v', 'g', 'h', 'e', 'f', 'c', 'd', 'i', 'j', 'm', 'l', 'k', 'n', 'o',
+    'p', 'q', 'y', 's', 'a', 'a', 'b', 'w', 'x', 'r', 'z', 123, 124, 125, 126, 127
 };
 
 /* The master codon/protein table.
  *
  * http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
- * Tables 7,8,17,18,19,20 are depreciated and do not exist
+ * Tables 7,8,17,18,19,20 are deprecated and do not exist
  * on the NCBI website
  *
  */
@@ -291,7 +291,7 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
         *s = '\0';  // drop through to report 0 fields
 
     while (*s != '\0') {  // make sure not to process empty string and ignore semi-colon at end of string
-        if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {  // handle doubled semi-colons and partial handling for other malformed items
+        if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {  // handle doubled semi-colons, prefix spaces and partial handling for other malformed items
             s++;
             continue;
         }
@@ -317,7 +317,17 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
         /* ditto with value separator, so key ends with null char */
         *sep2_loc = '\0';
 
+        // replace any spaces before sep2_loc with nulls, so key has ending spaces trimmed
+        for (char* pc=(sep2_loc-1); pc > key && *pc==' '; pc--)
+            *pc = '\0';
+
         value = sep2_loc; value++;
+        while (*value == ' ') value++;  // skip spaces after equal sign, so value has beginning spaces trimmed
+
+        // replace any spaces before separator with nulls, so value has ending spaces trimmed
+        for (char* pc=(s-1); pc > value && *pc==' '; pc--)
+            *pc = '\0';
+
         // bio_attribute_inner(t, &key, &value, &temp2);
         if (is_number(value))
             setsymtab(key, value, atof(value), STR|NUM, (Array *) ap->sval);
@@ -355,120 +365,120 @@ EdlibEqualityPair NYR_maps[8] = {{'N', 'A'}, {'N', 'C'}, {'N', 'G'}, {'N', 'T'},
 
 Cell *bio_func(int f, Cell *x, Node **a)
 {
-	Cell *y, *z;
-	y = gettemp();
-	if (f == BIO_FAND) {
-		if (a[1]->nnext == 0) {
-			WARNING("and requires two arguments; returning 0.0");
-			setfval(y, 0.0);
-		} else {
-			z = execute(a[1]->nnext);
-			setfval(y, (Awkfloat)((long)getfval(x) & (long)getfval(z))); /* FIXME: does (long) always work??? */
-			tempfree(z);
-		}
-	} else if (f == BIO_FOR) {
-		if (a[1]->nnext == 0) {
-			WARNING("or requires two arguments; returning 0.0");
-			setfval(y, 0.0);
-		} else {
-			z = execute(a[1]->nnext);
-			setfval(y, (Awkfloat)((long)getfval(x) | (long)getfval(z)));
-			tempfree(z);
-		}
-	} else if (f == BIO_FXOR) {
-		if (a[1]->nnext == 0) {
-			WARNING("xor requires two arguments; returning 0.0");
-			setfval(y, 0.0);
-		} else {
-			z = execute(a[1]->nnext);
-			setfval(y, (Awkfloat)((long)getfval(x) ^ (long)getfval(z)));
-			tempfree(z);
-		}
-	} else if (f == BIO_FREVERSE) {
-		char *buf = getsval(x);
-		int i, l, tmp;
-		l = strlen(buf);
-		for (i = 0; i < l>>1; ++i)
-			tmp = buf[i], buf[i] = buf[l-1-i], buf[l-1-i] = tmp;
-		setsval(y, buf);
-	} else if (f == BIO_FREVCOMP) {
-		char *buf;
-		int i, l, tmp;
-		buf = getsval(x);
-		l = strlen(buf);
-		for (i = 0; i < l>>1; ++i)
-			tmp = comp_tab[(int)buf[i]], buf[i] = comp_tab[(int)buf[l-1-i]], buf[l-1-i] = tmp;
-		if (l&1) buf[l>>1] = comp_tab[(int)buf[l>>1]];
-		setsval(y, buf);
-	} else if (f == BIO_FGC) {
-		char *buf;
-		int i, l, gc = 0;
-		buf = getsval(x);
-		l = strlen(buf);
-		if (l) { /* don't try for empty strings */
-			for (i = 0; i < l; ++i)
-				if (buf[i] == 'g' || buf[i] == 'c' ||
-					buf[i] == 'G' || buf[i] == 'C')
-					gc++;
-			setfval(y, (Awkfloat)gc / l);
-		}
-	} else if (f == BIO_FMEANQUAL) {
-		char *buf;
-		int i, l, total_qual = 0;
-		buf = getsval(x);
-		l = strlen(buf);
-		if (l) { /* don't try for empty strings */
-			for (i = 0; i < l; ++i)
-				total_qual += buf[i] - 33;
-			setfval(y, (Awkfloat)total_qual / l);
-		}
-	} else if (f == BIO_FTRIMQ) {
-		char *buf;
-		double thres = 0.05, s, max;
-		int i, l, tmp, beg, end;
-		Cell *u = 0, *v = 0;
-		if (a[1]->nnext) {
-			u = execute(a[1]->nnext); /* begin */
-			if (a[1]->nnext->nnext) {
-				v = execute(a[1]->nnext->nnext); /* end */
-				if (a[1]->nnext->nnext->nnext) {
-					z = execute(a[1]->nnext->nnext->nnext);
-					thres = getfval(z); /* user defined threshold */
-					tempfree(z);
-				}
-			}
-		}
-		buf = getsval(x);
-		l = strlen(buf);
-		if (q_int2real[0] == 0.) /* to initialize */
-			for (i = 0; i < 128; ++i)
-				q_int2real[i] = pow(10., -(i - 33) / 10.);
-		for (i = 0, beg = tmp = 0, end = l, s = max = 0.; i < l; ++i) {
-			int q = buf[i];
-			if (q < 36) q = 36;
-			if (q > 127) q = 127;
-			s += thres - q_int2real[q];
-			if (s > max) max = s, beg = tmp, end = i + 1;
-			if (s < 0) s = 0, tmp = i + 1;
-		}
-		if (u) { setfval(u, beg); tempfree(u); } /* 1-based position; as substr() is 1-based. */
-		if (v) { setfval(v, end); tempfree(v); }
-	} else if (f == BIO_FQUALCOUNT) {
-		if (a[1]->nnext == 0) {
-			WARNING("qualcount requires two arguments; returning 0.0");
-			setfval(y, 0.0);
-		} else {
-			char *buf;
-			int i, l, thres, cnt = 0;
-			buf = getsval(x);
-			l = strlen(buf);
-			z = execute(a[1]->nnext); /* threshold */
-			thres = (int)(getfval(z) + .499);
-			for (i = 0; i < l; ++i)
-				if (buf[i] - 33 >= thres) ++cnt;
-			setfval(y, (Awkfloat)cnt);
-		}
-	} else if (f == BIO_TRANSLATE) {
+    Cell *y, *z;
+    y = gettemp();
+    if (f == BIO_FAND) {
+        if (a[1]->nnext == 0) {
+            WARNING("and requires two arguments; returning 0.0");
+            setfval(y, 0.0);
+        } else {
+            z = execute(a[1]->nnext);
+            setfval(y, (Awkfloat)((long)getfval(x) & (long)getfval(z))); /* FIXME: does (long) always work??? */
+            tempfree(z);
+        }
+    } else if (f == BIO_FOR) {
+        if (a[1]->nnext == 0) {
+            WARNING("or requires two arguments; returning 0.0");
+            setfval(y, 0.0);
+        } else {
+            z = execute(a[1]->nnext);
+            setfval(y, (Awkfloat)((long)getfval(x) | (long)getfval(z)));
+            tempfree(z);
+        }
+    } else if (f == BIO_FXOR) {
+        if (a[1]->nnext == 0) {
+            WARNING("xor requires two arguments; returning 0.0");
+            setfval(y, 0.0);
+        } else {
+            z = execute(a[1]->nnext);
+            setfval(y, (Awkfloat)((long)getfval(x) ^ (long)getfval(z)));
+            tempfree(z);
+        }
+    } else if (f == BIO_FREVERSE) {
+        char *buf = getsval(x);
+        int i, l, tmp;
+        l = strlen(buf);
+        for (i = 0; i < l>>1; ++i)
+            tmp = buf[i], buf[i] = buf[l-1-i], buf[l-1-i] = tmp;
+        setsval(y, buf);
+    } else if (f == BIO_FREVCOMP) {
+        char *buf;
+        int i, l, tmp;
+        buf = getsval(x);
+        l = strlen(buf);
+        for (i = 0; i < l>>1; ++i)
+            tmp = comp_tab[(int)buf[i]], buf[i] = comp_tab[(int)buf[l-1-i]], buf[l-1-i] = tmp;
+        if (l&1) buf[l>>1] = comp_tab[(int)buf[l>>1]];
+        setsval(y, buf);
+    } else if (f == BIO_FGC) {
+        char *buf;
+        int i, l, gc = 0;
+        buf = getsval(x);
+        l = strlen(buf);
+        if (l) { /* don't try for empty strings */
+            for (i = 0; i < l; ++i)
+                if (buf[i] == 'g' || buf[i] == 'c' ||
+                    buf[i] == 'G' || buf[i] == 'C')
+                    gc++;
+            setfval(y, (Awkfloat)gc / l);
+        }
+    } else if (f == BIO_FMEANQUAL) {
+        char *buf;
+        int i, l, total_qual = 0;
+        buf = getsval(x);
+        l = strlen(buf);
+        if (l) { /* don't try for empty strings */
+            for (i = 0; i < l; ++i)
+                total_qual += buf[i] - 33;
+            setfval(y, (Awkfloat)total_qual / l);
+        }
+    } else if (f == BIO_FTRIMQ) {
+        char *buf;
+        double thres = 0.05, s, max;
+        int i, l, tmp, beg, end;
+        Cell *u = 0, *v = 0;
+        if (a[1]->nnext) {
+            u = execute(a[1]->nnext); /* begin */
+            if (a[1]->nnext->nnext) {
+                v = execute(a[1]->nnext->nnext); /* end */
+                if (a[1]->nnext->nnext->nnext) {
+                    z = execute(a[1]->nnext->nnext->nnext);
+                    thres = getfval(z); /* user defined threshold */
+                    tempfree(z);
+                }
+            }
+        }
+        buf = getsval(x);
+        l = strlen(buf);
+        if (q_int2real[0] == 0.) /* to initialize */
+            for (i = 0; i < 128; ++i)
+                q_int2real[i] = pow(10., -(i - 33) / 10.);
+        for (i = 0, beg = tmp = 0, end = l, s = max = 0.; i < l; ++i) {
+            int q = buf[i];
+            if (q < 36) q = 36;
+            if (q > 127) q = 127;
+            s += thres - q_int2real[q];
+            if (s > max) max = s, beg = tmp, end = i + 1;
+            if (s < 0) s = 0, tmp = i + 1;
+        }
+        if (u) { setfval(u, beg); tempfree(u); } /* 1-based position; as substr() is 1-based. */
+        if (v) { setfval(v, end); tempfree(v); }
+    } else if (f == BIO_FQUALCOUNT) {
+        if (a[1]->nnext == 0) {
+            WARNING("qualcount requires two arguments; returning 0.0");
+            setfval(y, 0.0);
+        } else {
+            char *buf;
+            int i, l, thres, cnt = 0;
+            buf = getsval(x);
+            l = strlen(buf);
+            z = execute(a[1]->nnext); /* threshold */
+            thres = (int)(getfval(z) + .499);
+            for (i = 0; i < l; ++i)
+                if (buf[i] - 33 >= thres) ++cnt;
+            setfval(y, (Awkfloat)cnt);
+        }
+    } else if (f == BIO_TRANSLATE) {
         int transtable = 0;
         char *buf;
         char *out;
@@ -507,239 +517,239 @@ Cell *bio_func(int f, Cell *x, Node **a)
         (void) time(& lclock);
         setfval(y, (Awkfloat)lclock);
     } else if (f == BIO_FSETAT) {  /* 06Mar2019 JBH_CAS set characters by position of string (eg seq) */ /* setat(str,pos,vals[,optional_repeat_count])  */
-		Cell *u = 0, *v = 0;
-		char *buf = getsval(x);
-		int l = strlen(buf); int WARN = (l==0);
-		if (l) { /* don't try for empty strings */
-			if (a[1]->nnext == 0 || a[1]->nnext->nnext == 0) {
-				WARN = 1;
-			} else {
-				u = execute(a[1]->nnext);  /* 1-indexed position */
-				v = execute(a[1]->nnext->nnext);  /* string to overlay at position */
-				int ix = -1 + (int)getfval(u);
-				char *rep = getsval(v);
-				int repeat_count = 1;
-				if (a[1]->nnext->nnext->nnext) {
-					z = execute(a[1]->nnext->nnext->nnext);
-					repeat_count = (int)getfval(z);
-					tempfree(z);
-				}
-				if (rep && *rep && ix >= 0 && ix < l) {
-					int i = ix;
-					while (repeat_count-- > 0 && buf[i]) {
-						int r = 0;  /* restart at replacement begin every repeat loop  */
-						for (; buf[i] && rep[r]; i++, r++) {
-							buf[i] = rep[r];
-						}
-					}
-				}
+        Cell *u = 0, *v = 0;
+        char *buf = getsval(x);
+        int l = strlen(buf); int WARN = (l==0);
+        if (l) { /* don't try for empty strings */
+            if (a[1]->nnext == 0 || a[1]->nnext->nnext == 0) {
+                WARN = 1;
+            } else {
+                u = execute(a[1]->nnext);  /* 1-indexed position */
+                v = execute(a[1]->nnext->nnext);  /* string to overlay at position */
+                int ix = -1 + (int)getfval(u);
+                char *rep = getsval(v);
+                int repeat_count = 1;
+                if (a[1]->nnext->nnext->nnext) {
+                    z = execute(a[1]->nnext->nnext->nnext);
+                    repeat_count = (int)getfval(z);
+                    tempfree(z);
+                }
+                if (rep && *rep && ix >= 0 && ix < l) {
+                    int i = ix;
+                    while (repeat_count-- > 0 && buf[i]) {
+                        int r = 0;  /* restart at replacement begin every repeat loop  */
+                        for (; buf[i] && rep[r]; i++, r++) {
+                            buf[i] = rep[r];
+                        }
+                    }
+                }
             }
-		}
-		if (WARN) WARNING("setat requires 3 or 4 arguments: str,pos,replacement[, optional repeat_count]");
-		if(u!=0){tempfree(u);u=0;} if(v!=0){tempfree(v);v=0;}
-		setsval(y, buf);
-	} else if (f == BIO_FHAMMING) {  // 26MAR2020 JBH add hamming(pat, text[, text_pos, case_sensitive, N_wildcard ])
-		Cell *u = 0, *v = 0;
-		int diff = -1, N_wildcard = 0;
-		char *pat = getsval(x);
-		int compare_len = strlen(pat);
-		if (compare_len < 1 || a[1]->nnext == 0) {
-			WARNING("hamming requires 2 to 5 arguments: pattern,text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]]");
-		} else {
-			int case_sensitive = 1, text_ofs = 0;
-			u = execute(a[1]->nnext);  /* text string */
-			char *text = getsval(u);
-			if (a[1]->nnext->nnext != 0) { /* optional text_pos arg, defaults to 1, ie text_ofs 0 */
-				v = execute(a[1]->nnext->nnext);  /* 1-indexed text offset */
-				text_ofs = -1 + (int)getfval(v);  /* convert awk 1-indexed pos to C 0-indexed offset */
-			}
-			if (text_ofs < 0) text_ofs = 0;
-			text += text_ofs;  /* note: for performance we are not checking bounds which is dangerous in the wild */
+        }
+        if (WARN) WARNING("setat requires 3 or 4 arguments: str,pos,replacement[, optional repeat_count]");
+        if(u!=0){tempfree(u);u=0;} if(v!=0){tempfree(v);v=0;}
+        setsval(y, buf);
+    } else if (f == BIO_FHAMMING) {  // 26MAR2020 JBH add hamming(pat, text[, text_pos, case_sensitive, N_wildcard ])
+        Cell *u = 0, *v = 0;
+        int diff = -1, N_wildcard = 0;
+        char *pat = getsval(x);
+        int compare_len = strlen(pat);
+        if (compare_len < 1 || a[1]->nnext == 0) {
+            WARNING("hamming requires 2 to 5 arguments: pattern,text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]]");
+        } else {
+            int case_sensitive = 1, text_ofs = 0;
+            u = execute(a[1]->nnext);  /* text string */
+            char *text = getsval(u);
+            if (a[1]->nnext->nnext != 0) { /* optional text_pos arg, defaults to 1, ie text_ofs 0 */
+                v = execute(a[1]->nnext->nnext);  /* 1-indexed text offset */
+                text_ofs = -1 + (int)getfval(v);  /* convert awk 1-indexed pos to C 0-indexed offset */
+            }
+            if (text_ofs < 0) text_ofs = 0;
+            text += text_ofs;  /* note: for performance we are not checking bounds which is dangerous in the wild */
 
-			if (a[1]->nnext->nnext && a[1]->nnext->nnext->nnext) { /* if optional case_sensitive arg is there, use it */
-				z = execute(a[1]->nnext->nnext->nnext);
-				case_sensitive = (0 != (int)getfval(z));
-				tempfree(z);
-				if (a[1]->nnext->nnext->nnext->nnext) { /* if optional N_wildcard arg is there, use it */
-					z = execute(a[1]->nnext->nnext->nnext->nnext);
-					N_wildcard = (0 != (int)getfval(z)); // non-zero makes N_wildcard
-					tempfree(z);
-				}
-			}
+            if (a[1]->nnext->nnext && a[1]->nnext->nnext->nnext) { /* if optional case_sensitive arg is there, use it */
+                z = execute(a[1]->nnext->nnext->nnext);
+                case_sensitive = (0 != (int)getfval(z));
+                tempfree(z);
+                if (a[1]->nnext->nnext->nnext->nnext) { /* if optional N_wildcard arg is there, use it */
+                    z = execute(a[1]->nnext->nnext->nnext->nnext);
+                    N_wildcard = (0 != (int)getfval(z)); // non-zero makes N_wildcard
+                    tempfree(z);
+                }
+            }
 
-			diff = 0;
-			int to_go = compare_len+1;
-			if (N_wildcard==0) {
-				if (case_sensitive) {
-					while (--to_go && *text) {
-						diff += *pat != *text;
-						pat++; text++;
-				   }
-				}
-				else {
-				   while (--to_go && *text) {
-						diff += toupper(*pat) != toupper(*text);
-						pat++; text++;
-				   }
-				}
-			} else {
-				while (--to_go && *text) {
-					char p = *pat, t = *text;
-					if (case_sensitive) {
-						p = toupper(p); t = toupper(t);
-					}
-					if (p!='N' && t!='N')
-						diff += (p != t);
-					pat++; text++;
-				}
-			}
-			diff += to_go;
-		}
-		if(u!=0){tempfree(u);u=0;} if(v!=0){tempfree(v);v=0;}
-		setfval(y, diff);
-	} else if (f == BIO_FEDLIB) {  // 26MAR2020 JBH add edit_dist using edlib
-		// edit_dist(max_dist, str1, str1_match_len, str2, [str2_len[, mode=EDLIB_MODE_SHW (ie 1)]]
+            diff = 0;
+            int to_go = compare_len+1;
+            if (N_wildcard==0) {
+                if (case_sensitive) {
+                    while (--to_go && *text) {
+                        diff += *pat != *text;
+                        pat++; text++;
+                   }
+                }
+                else {
+                   while (--to_go && *text) {
+                        diff += toupper(*pat) != toupper(*text);
+                        pat++; text++;
+                   }
+                }
+            } else {
+                while (--to_go && *text) {
+                    char p = *pat, t = *text;
+                    if (case_sensitive) {
+                        p = toupper(p); t = toupper(t);
+                    }
+                    if (p!='N' && t!='N')
+                        diff += (p != t);
+                    pat++; text++;
+                }
+            }
+            diff += to_go;
+        }
+        if(u!=0){tempfree(u);u=0;} if(v!=0){tempfree(v);v=0;}
+        setfval(y, diff);
+    } else if (f == BIO_FEDLIB) {  // 26MAR2020 JBH add edit_dist using edlib
+        // edit_dist(max_dist, str1, str1_match_len, str2, [str2_len[, mode=EDLIB_MODE_SHW (ie 1)]]
 
-		// can use 0 or -1 for length args and we will do strlen() here
-		// EDLIB_MODE_NW  (0) computes edit distance of both strings in entirety (global)
-		// EDLIB_MODE_SHW (1) gives distance of str1 to prefix of str2
-		// EDLIB_MODE_HW  (2) finds best matches of str1 in str2 (infix or local)
-		// if mode value has 10 added to it, we show standard CIGAR, if 20 or more extended CIGAR is shown
-		Cell *u = 0, *v = 0, *w = 0;  /* for other args, min 4 up to 6 */
+        // can use 0 or -1 for length args and we will do strlen() here
+        // EDLIB_MODE_NW  (0) computes edit distance of both strings in entirety (global)
+        // EDLIB_MODE_SHW (1) gives distance of str1 to prefix of str2
+        // EDLIB_MODE_HW  (2) finds best matches of str1 in str2 (infix or local)
+        // if mode value has 10 added to it, we show standard CIGAR, if 20 or more extended CIGAR is shown
+        Cell *u = 0, *v = 0, *w = 0;  /* for other args, min 4 up to 6 */
         #define EDBLEN 100
-		char edit_dist_buf[EDBLEN] = "-1";
-		int mode = EDLIB_MODE_SHW; /* default to prefix mode. works well in concert with a str1_match_len shorter than str1 */
-		int task = EDLIB_TASK_LOC; /* gets aligment for cigar when mode arg > 9 EDLIB_TASK_PATH */
-		int cigar_type = EDLIB_CIGAR_STANDARD; /* EDLIB_CIGAR_STANDARD if 10<=mode<=19 or EDLIB_CIGAR_EXTENDED if mode >= 20 */
-		int N_wildcard = 0, YR_wildcard = 0;
+        char edit_dist_buf[EDBLEN] = "-1";
+        int mode = EDLIB_MODE_SHW; /* default to prefix mode. works well in concert with a str1_match_len shorter than str1 */
+        int task = EDLIB_TASK_LOC; /* gets aligment for cigar when mode arg > 9 EDLIB_TASK_PATH */
+        int cigar_type = EDLIB_CIGAR_STANDARD; /* EDLIB_CIGAR_STANDARD if 10<=mode<=19 or EDLIB_CIGAR_EXTENDED if mode >= 20 */
+        int N_wildcard = 0, YR_wildcard = 0;
 
-		int max_editdist = (int)getfval(x);  /* -1 means no max set, can be very expensive on long str2 and infix mode */
-		int WARN = !(a[1]->nnext && a[1]->nnext->nnext && a[1]->nnext->nnext->nnext); /* args: str1, str1_match_len, str2 */
-		if (! WARN) {
-			u = execute(a[1]->nnext);  /* str1 */
-			char *str1 = getsval(u);
-			w = execute(a[1]->nnext->nnext); /* str1_match_len */
-			int slen1 = (int)getfval(w); tempfree(w); w=0;
-			if(slen1 < 1) /* if 0 or -1 passed we'll figure it out here */
-			   slen1 = strlen(str1);
+        int max_editdist = (int)getfval(x);  /* -1 means no max set, can be very expensive on long str2 and infix mode */
+        int WARN = !(a[1]->nnext && a[1]->nnext->nnext && a[1]->nnext->nnext->nnext); /* args: str1, str1_match_len, str2 */
+        if (! WARN) {
+            u = execute(a[1]->nnext);  /* str1 */
+            char *str1 = getsval(u);
+            w = execute(a[1]->nnext->nnext); /* str1_match_len */
+            int slen1 = (int)getfval(w); tempfree(w); w=0;
+            if(slen1 < 1) /* if 0 or -1 passed we'll figure it out here */
+               slen1 = strlen(str1);
 
-			v = execute(a[1]->nnext->nnext->nnext); /* str2 */
-			char* str2 = getsval(v);
-			int slen2 = 0;
+            v = execute(a[1]->nnext->nnext->nnext); /* str2 */
+            char* str2 = getsval(v);
+            int slen2 = 0;
 
-			if (a[1]->nnext->nnext->nnext->nnext) { /* optional 5th arg: slen2 */
-				w = execute(a[1]->nnext->nnext->nnext->nnext);
-				slen2 = (int)getfval(w); tempfree(w); w=0;
+            if (a[1]->nnext->nnext->nnext->nnext) { /* optional 5th arg: slen2 */
+                w = execute(a[1]->nnext->nnext->nnext->nnext);
+                slen2 = (int)getfval(w); tempfree(w); w=0;
 
-				if (a[1]->nnext->nnext->nnext->nnext->nnext) { /* optional 6th arg: mode */
-					w = execute(a[1]->nnext->nnext->nnext->nnext->nnext);
-					int mval = (int)getfval(w); tempfree(w); w=0;
-					if (mval >= 10) { /* mode + 10 means show CIGAR for alignment */
-						if (mval >= 20) cigar_type = EDLIB_CIGAR_EXTENDED;
- 						mval = mval % 10;
-						task = EDLIB_TASK_PATH;
-					}
-					if (mval != EDLIB_MODE_SHW) { /* 0 is complete match NW, 1 is prefix match SHW, any other is infix match HW */
-						mode = (mval==EDLIB_MODE_NW) ? EDLIB_MODE_NW : EDLIB_MODE_HW;
-					}
-					if (a[1]->nnext->nnext->nnext->nnext->nnext->nnext) { /* optional 7th arg: equality pair types */
-						w = execute(a[1]->nnext->nnext->nnext->nnext->nnext->nnext);
-						int equalities_flag = (int)getfval(w); tempfree(w); w=0;
-						N_wildcard = equalities_flag & 1; // true if 1 bit set
-						YR_wildcard = equalities_flag & 2; // true if 2 bit set
-					}
-				}
-			}
-			if (slen2 < 1) { /* get slen2 based on actual length; no arg 5 or trigger this by passing in 0 or -1 as str2_len arg */
-				slen2 = strlen(str2);
-			}
-			if (slen1 < 1 || slen2 < 1) {
-				char* msg = (slen1 < 1) ? "str1_match_len must be greater than or equal to 1" : "str2 empty";
-				WARNING(msg);
-			}
-			else {
-				EdlibEqualityPair *addtlEqualities = NULL; int equalities_len = 0;
-				if (N_wildcard || YR_wildcard) {
-					addtlEqualities = (N_wildcard && YR_wildcard) ? NYR_maps : (N_wildcard) ? N_maps : YR_maps;
-					equalities_len  = (N_wildcard && YR_wildcard) ? 8 : 4;
-				}
-				
-				EdlibAlignConfig edlibConfig = edlibNewAlignConfig(max_editdist, mode, task, addtlEqualities, equalities_len);
-				
-				EdlibAlignResult result = edlibAlign(str1, slen1, str2, slen2, edlibConfig);
-				if (result.status == EDLIB_STATUS_OK) {
-					char temp[50];
-					int start = -1, end = -1;
-					sprintf(edit_dist_buf, "%d", result.editDistance);
-					if (result.alignment) {
-						char* cigar = edlibAlignmentToCigar(result.alignment, result.alignmentLength, cigar_type);
-						sprintf(temp, " %s", cigar);
-						strcat(edit_dist_buf, temp);
-						free(cigar);
-					}
-					for (int i=0; i < result.numLocations; i++) { // 1 index start and end locations for awk ouput
-						start = result.startLocations[i] + 1;
-						end = result.endLocations[i] + 1;
-						sprintf(temp, " %d %d", start, end);
-						if(strlen(edit_dist_buf)+strlen(temp)+1 < EDBLEN)
-							strcat(edit_dist_buf, temp);
-					}
-				}
-				edlibFreeAlignResult(result);
-			}
-		}
-		if (WARN) {
-			WARNING("edit_dist requires 4 to 7 arguments: max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]]\n"
-					"                  mode: 0 complete match, 1 prefix match, 2 infix match (add 10 or 20 for CIGAR). Can use string len -1 for full length.\n"
-					"                  flags: 1 N matches ACTG, 2 Y matches CT, R matches AG, 3 both.");
-		}
+                if (a[1]->nnext->nnext->nnext->nnext->nnext) { /* optional 6th arg: mode */
+                    w = execute(a[1]->nnext->nnext->nnext->nnext->nnext);
+                    int mval = (int)getfval(w); tempfree(w); w=0;
+                    if (mval >= 10) { /* mode + 10 means show CIGAR for alignment */
+                        if (mval >= 20) cigar_type = EDLIB_CIGAR_EXTENDED;
+                        mval = mval % 10;
+                        task = EDLIB_TASK_PATH;
+                    }
+                    if (mval != EDLIB_MODE_SHW) { /* 0 is complete match NW, 1 is prefix match SHW, any other is infix match HW */
+                        mode = (mval==EDLIB_MODE_NW) ? EDLIB_MODE_NW : EDLIB_MODE_HW;
+                    }
+                    if (a[1]->nnext->nnext->nnext->nnext->nnext->nnext) { /* optional 7th arg: equality pair types */
+                        w = execute(a[1]->nnext->nnext->nnext->nnext->nnext->nnext);
+                        int equalities_flag = (int)getfval(w); tempfree(w); w=0;
+                        N_wildcard = equalities_flag & 1; // true if 1 bit set
+                        YR_wildcard = equalities_flag & 2; // true if 2 bit set
+                    }
+                }
+            }
+            if (slen2 < 1) { /* get slen2 based on actual length; no arg 5 or trigger this by passing in 0 or -1 as str2_len arg */
+                slen2 = strlen(str2);
+            }
+            if (slen1 < 1 || slen2 < 1) {
+                char* msg = (slen1 < 1) ? "str1_match_len must be greater than or equal to 1" : "str2 empty";
+                WARNING(msg);
+            }
+            else {
+                EdlibEqualityPair *addtlEqualities = NULL; int equalities_len = 0;
+                if (N_wildcard || YR_wildcard) {
+                    addtlEqualities = (N_wildcard && YR_wildcard) ? NYR_maps : (N_wildcard) ? N_maps : YR_maps;
+                    equalities_len  = (N_wildcard && YR_wildcard) ? 8 : 4;
+                }
 
-		if(u!=0){tempfree(u);u=0;} if(v!=0){tempfree(v);v=0;} if(w!=0){tempfree(w);w=0;}
-		setsval(y, edit_dist_buf); /* return string with edit_distance start_loc end_loc */
-	}
-	else if (f == BIO_ADAPATEND) {
-		Cell *u = 0;
-		char* seq_to_chk = getsval(x);
-		char* adapter = 0;
-		char match_info_buf[60] = {'0'};
-		int WARN = 0;
-		if (seq_to_chk==NULL || *seq_to_chk=='\0') {  // setting adapter when 1st arg is empty, eg end_adapter_pos("", "GATCGGAAGAGCACAC")
-			if (a[1]->nnext) { // adapter is in 2nd arg, we only look at it when first arg is empty
-				u = execute(a[1]->nnext);
-				adapter = getsval(u);
-				if (adapter != NULL && *adapter != '\0') {
-					free_g_adap_info();
-					g_adap_info = make_adapter_prefix_encodings(adapter);
-					sprintf(match_info_buf, "%d", g_adap_info.adapter_length);  // length of adapter used for prefix check, max 16
-				} else { WARN = 1; }
-			} else { WARN = 1; }
-		}
-		else if (g_adap_info.prefix_set != NULL && g_adap_info.adapter_length >= 4) // calling to check seq, eg end_adapter_pos(seq)
-		{
-			struct readEndMatch match_inf = check_read_end_for_adapter_prefix(seq_to_chk);
-			sprintf(match_info_buf, "%d %d %d", match_inf.match_pos, match_inf.len, match_inf.errs); 
-		} else { WARN = 1; }
+                EdlibAlignConfig edlibConfig = edlibNewAlignConfig(max_editdist, mode, task, addtlEqualities, equalities_len);
 
-		if (WARN) {
-			WARNING("end_adapter_pos(\"\", adapter) to set adapter. end_adapter_pos(seq) to check seq suffix against adapter prefix.\n"
-				"                  To set adapter call with empty seq, subsequent calls use seq as only argument.\n"
-				"                  Returns string with 3 numbers: position of match, len, mismatches (-1 for none)");
-		}
+                EdlibAlignResult result = edlibAlign(str1, slen1, str2, slen2, edlibConfig);
+                if (result.status == EDLIB_STATUS_OK) {
+                    char temp[50];
+                    int start = -1, end = -1;
+                    sprintf(edit_dist_buf, "%d", result.editDistance);
+                    if (result.alignment) {
+                        char* cigar = edlibAlignmentToCigar(result.alignment, result.alignmentLength, cigar_type);
+                        sprintf(temp, " %s", cigar);
+                        strcat(edit_dist_buf, temp);
+                        free(cigar);
+                    }
+                    for (int i=0; i < result.numLocations; i++) { // 1 index start and end locations for awk ouput
+                        start = result.startLocations[i] + 1;
+                        end = result.endLocations[i] + 1;
+                        sprintf(temp, " %d %d", start, end);
+                        if(strlen(edit_dist_buf)+strlen(temp)+1 < EDBLEN)
+                            strcat(edit_dist_buf, temp);
+                    }
+                }
+                edlibFreeAlignResult(result);
+            }
+        }
+        if (WARN) {
+            WARNING("edit_dist requires 4 to 7 arguments: max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]]\n"
+                    "                  mode: 0 complete match, 1 prefix match, 2 infix match (add 10 or 20 for CIGAR). Can use string len -1 for full length.\n"
+                    "                  flags: 1 N matches ACTG, 2 Y matches CT, R matches AG, 3 both.");
+        }
+
+        if(u!=0){tempfree(u);u=0;} if(v!=0){tempfree(v);v=0;} if(w!=0){tempfree(w);w=0;}
+        setsval(y, edit_dist_buf); /* return string with edit_distance start_loc end_loc */
+    }
+    else if (f == BIO_ADAPATEND) {
+        Cell *u = 0;
+        char* seq_to_chk = getsval(x);
+        char* adapter = 0;
+        char match_info_buf[60] = {'0'};
+        int WARN = 0;
+        if (seq_to_chk==NULL || *seq_to_chk=='\0') {  // setting adapter when 1st arg is empty, eg end_adapter_pos("", "GATCGGAAGAGCACAC")
+            if (a[1]->nnext) { // adapter is in 2nd arg, we only look at it when first arg is empty
+                u = execute(a[1]->nnext);
+                adapter = getsval(u);
+                if (adapter != NULL && *adapter != '\0') {
+                    free_g_adap_info();
+                    g_adap_info = make_adapter_prefix_encodings(adapter);
+                    sprintf(match_info_buf, "%d", g_adap_info.adapter_length);  // length of adapter used for prefix check, max 16
+                } else { WARN = 1; }
+            } else { WARN = 1; }
+        }
+        else if (g_adap_info.prefix_set != NULL && g_adap_info.adapter_length >= 4) // calling to check seq, eg end_adapter_pos(seq)
+        {
+            struct readEndMatch match_inf = check_read_end_for_adapter_prefix(seq_to_chk);
+            sprintf(match_info_buf, "%d %d %d", match_inf.match_pos, match_inf.len, match_inf.errs);
+        } else { WARN = 1; }
+
+        if (WARN) {
+            WARNING("end_adapter_pos(\"\", adapter) to set adapter. end_adapter_pos(seq) to check seq suffix against adapter prefix.\n"
+                "                  To set adapter call with empty seq, subsequent calls use seq as only argument.\n"
+                "                  Returns string with 3 numbers: position of match, len, mismatches (-1 for none)");
+        }
 
         setsval(y, match_info_buf);
 
     } else if (f == BIO_FMD5) { /* 26May2020 JBH_CAS add md5() to return md5 string for input parm1 */
 
-		char* seq_to_chk = getsval(x);
-		size_t len = strlen(seq_to_chk);
+        char* seq_to_chk = getsval(x);
+        size_t len = strlen(seq_to_chk);
 
-		if (len > 0) {
-			char* md5_rslt = md5str((unsigned char*)seq_to_chk, len);
-			setsval(y, md5_rslt);
-			free(md5_rslt); *md5_rslt = '\0';
-		} else {
-			WARNING("md5 takes a string argument and returns its md5 value.");
-		}
+        if (len > 0) {
+            char* md5_rslt = md5str((unsigned char*)seq_to_chk, len);
+            setsval(y, md5_rslt);
+            free(md5_rslt); *md5_rslt = '\0';
+        } else {
+            WARNING("md5 takes a string argument and returns its md5 value.");
+        }
 
     } else if (f == BIO_CHARCOUNT) { /* charcount(str, ar_chars) -- returns val e.g. ar_chars["A"]=173 JBH 21Jul2020 */
 
@@ -843,7 +853,7 @@ Cell *bio_func(int f, Cell *x, Node **a)
             WARNING("applytochars(str, stmt_or_func). 2nd arg called for each char in str with CHAR and ORD variables set.");
 
     } /* else: never happens */
-	return y;
+    return y;
 }
 
 /************************
@@ -861,120 +871,120 @@ static kstring_t g_str;
 
 int bio_getrec(char **pbuf, int *psize, int isrecord)
 {
-	extern Awkfloat *ARGC;
-	extern int argno, recsize;
-	extern char *file;
-	extern Cell **fldtab;
+    extern Awkfloat *ARGC;
+    extern int argno, recsize;
+    extern char *file;
+    extern Cell **fldtab;
 
-	int i, c, saveb0, dret, bufsize = *psize, savesize = *psize;
-	char *p, *buf = *pbuf;
-	if (g_firsttime) { /* mimicing initgetrec() in lib.c */
-		g_firsttime = 0;
-		for (i = 1; i < *ARGC; i++) {
-			p = getargv(i); /* find 1st real filename */
-			if (p == NULL || *p == '\0') {	/* deleted or zapped */
-				argno++;
-				continue;
-			}
-			if (!isclvar(p)) {
-				setsval(lookup("FILENAME", symtab), p);
-				goto getrec_start;
-			}
-			setclvar(p);	/* a commandline assignment before filename */
-			argno++;
-		}
-		g_fp = gzdopen(fileno(stdin), "r"); /* no filenames, so use stdin */
-		g_kseq = kseq_init(g_fp);
-		g_is_stdin = 1;
-	}
+    int i, c, saveb0, dret, bufsize = *psize, savesize = *psize;
+    char *p, *buf = *pbuf;
+    if (g_firsttime) { /* mimicing initgetrec() in lib.c */
+        g_firsttime = 0;
+        for (i = 1; i < *ARGC; i++) {
+            p = getargv(i); /* find 1st real filename */
+            if (p == NULL || *p == '\0') {	/* deleted or zapped */
+                argno++;
+                continue;
+            }
+            if (!isclvar(p)) {
+                setsval(lookup("FILENAME", symtab), p);
+                goto getrec_start;
+            }
+            setclvar(p);	/* a commandline assignment before filename */
+            argno++;
+        }
+        g_fp = gzdopen(fileno(stdin), "r"); /* no filenames, so use stdin */
+        g_kseq = kseq_init(g_fp);
+        g_is_stdin = 1;
+    }
 
 getrec_start:
-	if (isrecord) {
-		donefld = 0; /* these are defined in lib.c */
-		donerec = 1;
-	}
-	saveb0 = buf[0];
-	buf[0] = 0; /* this is effective at the end of file */
-	while (argno < *ARGC || g_is_stdin) {
-		if (g_kseq == 0) { /* have to open a new file */
-			file = getargv(argno);
-			if (file == NULL || *file == '\0') { /* deleted or zapped */
-				argno++;
-				continue;
-			}
-			if (isclvar(file)) {	/* a var=value arg */
-				setclvar(file);
-				argno++;
-				continue;
-			}
-			*FILENAME = file;
-			if (*file == '-' && *(file+1) == '\0') {
-				g_fp = gzdopen(fileno(stdin), "r");
-				g_kseq = kseq_init(g_fp);
-				g_is_stdin = 1;
-			} else {
-				if ((g_fp = gzopen(file, "r")) == NULL)
-					FATAL("can't open file %s", file);
-				g_kseq = kseq_init(g_fp);
-				g_is_stdin = 0;
-			}
-			setfval(fnrloc, 0.0);
-		}
-		if (bio_fmt != BIO_FASTX) {
-			c = ks_getuntil(g_kseq->f, **RS, &g_str, &dret);
-		} else {
-			c = kseq_read(g_kseq);
-			if (c >= 0) {
-				g_str.l = 0;
-				g_str.m = g_kseq->name.l + g_kseq->comment.l + g_kseq->seq.l + g_kseq->qual.l + 4;
-				kroundup32(g_str.m);
-				g_str.s = (char*)realloc(g_str.s, g_str.m);
-				for (i = 0; i < g_kseq->name.l; ++i)
-					g_str.s[g_str.l++] = g_kseq->name.s[i];
-				g_str.s[g_str.l++] = '\t';
-				for (i = 0; i < g_kseq->seq.l; ++i)
-					g_str.s[g_str.l++] = g_kseq->seq.s[i];
-				g_str.s[g_str.l++] = '\t';
-				for (i = 0; i < g_kseq->qual.l; ++i)
-					g_str.s[g_str.l++] = g_kseq->qual.s[i];
-				g_str.s[g_str.l++] = '\t';
-				for (i = 0; i < g_kseq->comment.l; ++i)
-					g_str.s[g_str.l++] = g_kseq->comment.s[i];
-				g_str.s[g_str.l++] = '\0';
-			} else {
-				g_str.l = 0;
-				if (g_str.s) g_str.s[0] = '\0';
-			}
-		}
-		adjbuf(&buf, &bufsize, g_str.l + 1, recsize, 0, "bio_getrec");
-		memcpy(buf, g_str.s, g_str.l + 1);
-		if (c >= 0) {	/* normal record */
-			if (isrecord) {
-				if (freeable(fldtab[0]))
-					xfree(fldtab[0]->sval);
-				fldtab[0]->sval = buf;	/* buf == record */
-				fldtab[0]->tval = REC | STR | DONTFREE;
-				if (is_number(fldtab[0]->sval)) {
-					fldtab[0]->fval = atof(fldtab[0]->sval);
-					fldtab[0]->tval |= NUM;
-				}
-			}
-			setfval(nrloc, nrloc->fval+1);
-			setfval(fnrloc, fnrloc->fval+1);
-			*pbuf = buf;
-			*psize = bufsize;
-			return 1;
-		}
-		/* EOF arrived on this file; set up next */
-		if (!g_is_stdin) {
-			kseq_destroy(g_kseq);
-			gzclose(g_fp);
-		}
-		g_fp = 0; g_kseq = 0; g_is_stdin = 0;
-		argno++;
-	}
-	buf[0] = saveb0;
-	*pbuf = buf;
-	*psize = savesize;
-	return 0;	/* true end of file */
+    if (isrecord) {
+        donefld = 0; /* these are defined in lib.c */
+        donerec = 1;
+    }
+    saveb0 = buf[0];
+    buf[0] = 0; /* this is effective at the end of file */
+    while (argno < *ARGC || g_is_stdin) {
+        if (g_kseq == 0) { /* have to open a new file */
+            file = getargv(argno);
+            if (file == NULL || *file == '\0') { /* deleted or zapped */
+                argno++;
+                continue;
+            }
+            if (isclvar(file)) {	/* a var=value arg */
+                setclvar(file);
+                argno++;
+                continue;
+            }
+            *FILENAME = file;
+            if (*file == '-' && *(file+1) == '\0') {
+                g_fp = gzdopen(fileno(stdin), "r");
+                g_kseq = kseq_init(g_fp);
+                g_is_stdin = 1;
+            } else {
+                if ((g_fp = gzopen(file, "r")) == NULL)
+                    FATAL("can't open file %s", file);
+                g_kseq = kseq_init(g_fp);
+                g_is_stdin = 0;
+            }
+            setfval(fnrloc, 0.0);
+        }
+        if (bio_fmt != BIO_FASTX) {
+            c = ks_getuntil(g_kseq->f, **RS, &g_str, &dret);
+        } else {
+            c = kseq_read(g_kseq);
+            if (c >= 0) {
+                g_str.l = 0;
+                g_str.m = g_kseq->name.l + g_kseq->comment.l + g_kseq->seq.l + g_kseq->qual.l + 4;
+                kroundup32(g_str.m);
+                g_str.s = (char*)realloc(g_str.s, g_str.m);
+                for (i = 0; i < g_kseq->name.l; ++i)
+                    g_str.s[g_str.l++] = g_kseq->name.s[i];
+                g_str.s[g_str.l++] = '\t';
+                for (i = 0; i < g_kseq->seq.l; ++i)
+                    g_str.s[g_str.l++] = g_kseq->seq.s[i];
+                g_str.s[g_str.l++] = '\t';
+                for (i = 0; i < g_kseq->qual.l; ++i)
+                    g_str.s[g_str.l++] = g_kseq->qual.s[i];
+                g_str.s[g_str.l++] = '\t';
+                for (i = 0; i < g_kseq->comment.l; ++i)
+                    g_str.s[g_str.l++] = g_kseq->comment.s[i];
+                g_str.s[g_str.l++] = '\0';
+            } else {
+                g_str.l = 0;
+                if (g_str.s) g_str.s[0] = '\0';
+            }
+        }
+        adjbuf(&buf, &bufsize, g_str.l + 1, recsize, 0, "bio_getrec");
+        memcpy(buf, g_str.s, g_str.l + 1);
+        if (c >= 0) {	/* normal record */
+            if (isrecord) {
+                if (freeable(fldtab[0]))
+                    xfree(fldtab[0]->sval);
+                fldtab[0]->sval = buf;	/* buf == record */
+                fldtab[0]->tval = REC | STR | DONTFREE;
+                if (is_number(fldtab[0]->sval)) {
+                    fldtab[0]->fval = atof(fldtab[0]->sval);
+                    fldtab[0]->tval |= NUM;
+                }
+            }
+            setfval(nrloc, nrloc->fval+1);
+            setfval(fnrloc, fnrloc->fval+1);
+            *pbuf = buf;
+            *psize = bufsize;
+            return 1;
+        }
+        /* EOF arrived on this file; set up next */
+        if (!g_is_stdin) {
+            kseq_destroy(g_kseq);
+            gzclose(g_fp);
+        }
+        g_fp = 0; g_kseq = 0; g_is_stdin = 0;
+        argno++;
+    }
+    buf[0] = saveb0;
+    *pbuf = buf;
+    *psize = savesize;
+    return 0;	/* true end of file */
 }
