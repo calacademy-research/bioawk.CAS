@@ -44,10 +44,6 @@ SHIP = README FIXES $(SOURCE) ytab[ch].bak makefile  \
 
 UNAME = $(shell uname -s)
 
-debug: CFLAGS = -g3 -Wall
-debug: clean
-debug: bioawk
-
 bioawk:ytab.o $(OFILES)
 	$(CPP) $(CFLAGS) ytab.o $(OFILES) $(ALLOC) -o $@ -lm -lz
 	cp bioawk bioawk_cas
@@ -83,5 +79,9 @@ names:
 
 clean:
 	rm -fr a.out *.o *.obj maketab maketab.exe *.bb *.bbg *.da *.gcov *.gcno *.gcda awk ytab.o proctab.c *.dSYM
+
+debug: CFLAGS = -g3 -Wall
+debug: clean
+debug: bioawk
 
 all: bioawk
