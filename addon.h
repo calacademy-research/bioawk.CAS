@@ -52,6 +52,7 @@ int bio_getrec(char **pbuf, int *psize, int isrecord);
 #define BIO_MODSTR    215 /* modstr(str, start, length, mod_type) -- mod_type 0 to lowercase, 1 to uppercase, might add ability to use function for mod_type later */
 #define BIO_APPLYCHARS 216 /* applytochars(str, eval_for_each_char_in_str[, eval_for_each_char...]) -- loops over chars in str executing arg with var CHAR set */
 #define BIO_GFFATTR   217 /* added in github.com/ctSkennerton/bioawk */
+#define BIO_GTFATTR   218 /* same as for gffattr but uses space as key/value delimiter instead of equal sign */
 
 struct Cell;
 struct Node;

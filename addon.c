@@ -259,19 +259,7 @@ void bio_translate(char *dna, char *out, int table)
         out[i] = '\0';
 }
 
-void bio_attribute_inner(char * tag, char ** key, char ** value, char **sep_loc) {
-    /* split a gff Key=value string pair into the key and value*/
-    *key = tag;
-    char sep;
-    sep = '=';
-    while (*tag != sep && *tag != '\0')
-        tag++;
-    *sep_loc = tag;
-    *tag = '\0';
-    *value = ++tag;
-}
-
-void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
+void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter) {
     /* attribute(x, array [, pos_array])
             x, which is a string with the tags or attributes field
               of either gff, or sam format.
@@ -283,7 +271,7 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
 
     char *origS, *s, sep, sep2, *sep2_loc, *key, *value, temp;
     origS = s = strdup(getsval(x));
-    sep = ';'; sep2 = '=';
+    sep = ';'; sep2 = kw_delimiter;
     int n;
     n = 0;
 
@@ -494,7 +482,7 @@ Cell *bio_func(int f, Cell *x, Node **a)
         bio_translate(buf, out, transtable);
         setsval(y, out);
         free(out);
-    } else if (f == BIO_GFFATTR) {
+    } else if (f == BIO_GFFATTR || f == BIO_GTFATTR) {
         Cell * ap = NULL; Cell * posp = NULL;
         if (a[1]->nnext != 0) {
             ap = execute(a[1]->nnext);
@@ -505,13 +493,17 @@ Cell *bio_func(int f, Cell *x, Node **a)
                 posp->sval = (char *) makesymtab(NSYMTAB);
             }
         } else {
-            FATAL("gffattr(attr_str, array[, pos_array]) requires at least two arguments and allows an optional third");
+            if (f != BIO_GTFATTR)
+                FATAL("gffattr(attr_str, array[, pos_array]) requires at least two arguments and allows an optional third");
+            else
+                FATAL("gtfattr(attr_str, array[, pos_array]) requires at least two arguments and allows an optional third");
         }
         freesymtab(ap);
         ap->tval &= ~STR;
         ap->tval |= ARR;
         ap->sval = (char *) makesymtab(NSYMTAB);
-        bio_attribute(x, ap, posp, y);
+        char kw_delimiter = (f == BIO_GTFATTR) ? ' ' : '=';
+        bio_attribute(x, ap, posp, y, kw_delimiter);
     } else if (f == BIO_FSYSTIME) { /* 12Aug2019 JBH_CAS add systime() that gawk has had for awhile */
         time_t lclock;
         (void) time(& lclock);
