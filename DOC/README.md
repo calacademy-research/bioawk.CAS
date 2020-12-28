@@ -1,6 +1,6 @@
 #### Functions added to bioawk ####
 
-``translate`` ``gffattr``  originally added in https://github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``. Optional arg added to this version of gffattr.
+``translate`` ``gffattr``  originally added in https://github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``. Optional arg added to this version of gffattr. Also added gtfttr to parse the slightly different syntax of those attrbute fields.
 
 (1) ``translate(nucl_str [, table_num])`` translates nucleotide string nucl_str. Returns the protein sequence.
 
@@ -10,7 +10,7 @@ can also use different translation tables. Here are the [genetic code table numb
 
     bawk '{print ">"$name;print translate($seq, 11)}' seq.fa.gz
 
-(2) ``gffattr( attr_str, arr[, pos_arr])`` parses the attr_str and puts the values in the arr argument. The attr_str is expected to be in the format of the gff attribute field.
+(2) ``gffattr( attr_str, arr[, pos_arr])`` or ``gtfattr( attr_str, arr[, pos_arr])`` parses the attr_str and puts the values in the arr argument. The attr_str is expected to be in the format of the gff attribute field.
 This field has subfields delimited by semi-colons where each subfield has a name and a value after an equal sign.
 Returns number of subfields, which is same as length(arr). Optional pos_array will put the first key value in pos_arr[1], second in pos_arr[2], etc.
 The pos_arr option added in bioawk_cas.
