@@ -259,7 +259,7 @@ void bio_translate(char *dna, char *out, int table)
         out[i] = '\0';
 }
 
-void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter) {
+void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter, int del_val_quotes) {
     /* attribute(x, array [, pos_array])
             x, which is a string with the tags or attributes field
               of either gff, or sam format.
@@ -270,6 +270,7 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
     */
 
     char *origS, *s, sep, sep2, *sep2_loc, *key, *value, temp;
+    const char QUOTE = '"';
     origS = s = strdup(getsval(x));
     sep = ';'; sep2 = kw_delimiter;
     int n;
@@ -315,6 +316,14 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
         // replace any spaces before separator with nulls, so value has ending spaces trimmed
         for (char* pc=(s-1); pc > value && *pc==' '; pc--)
             *pc = '\0';
+
+        // for gtf files we remove the quotes around the value
+        if (del_val_quotes && *value == QUOTE) {
+            value++;
+            char* valend = s-1;
+            if (valend > value && *valend == QUOTE)
+                *valend = '\0';
+        }
 
         // bio_attribute_inner(t, &key, &value, &temp2);
         if (is_number(value))
@@ -503,7 +512,8 @@ Cell *bio_func(int f, Cell *x, Node **a)
         ap->tval |= ARR;
         ap->sval = (char *) makesymtab(NSYMTAB);
         char kw_delimiter = (f == BIO_GTFATTR) ? ' ' : '=';
-        bio_attribute(x, ap, posp, y, kw_delimiter);
+        int del_val_quotes = (f == BIO_GTFATTR);
+        bio_attribute(x, ap, posp, y, kw_delimiter, del_val_quotes);
     } else if (f == BIO_FSYSTIME) { /* 12Aug2019 JBH_CAS add systime() that gawk has had for awhile */
         time_t lclock;
         (void) time(& lclock);
