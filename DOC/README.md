@@ -24,6 +24,7 @@ NC_000085.6     Gnomon  gene    3064929 3075825 .       -       .       ID=gene-
 bioawk_cas 'NR==1{
    gffattr($NF, arr)
    print arr["ID"] " is the ID\n"
+   
    for(subfield in arr)
       print subfield " = " arr[subfield]
       
