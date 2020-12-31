@@ -25,7 +25,7 @@ bioawk functions:
 	systime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat
 ```
 The first line under bioawk functions in the above code block are the functions added in Heng Li's original version.
-The next line has the translate, gffattr functions and then new functions added in bioawk_cas follwoing and in next line.
+The next line has the translate, gffattr functions from ctSkennerton/bioawk and then new functions added in bioawk_cas following and in next line.
 
 Since the most common use of bioawk is with fasta or fastq files using the -c fastx option, a script named **bawk** is included that presumes this.
 **bawk** is `bioawk -c fastx "$@"` and saves a bit of typing.
