@@ -262,19 +262,21 @@ void bio_translate(char *dna, char *out, int table)
 void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter, int del_val_quotes) {
     /* attribute(x, array [, pos_array])
             x, which is a string with the tags or attributes field
-              of either gff, or sam format.
+              of either gff, or gtf format.
             array, which is the array created by parsing the string.
             optional pos_array, key is field number and value is the field's key in array.
 
             will return the number of keys in the array in y.
+
+            kw_delimiter '=' for gff ' ' for gtf, del_val_quotes true for gtf
     */
 
     char *origS, *s, sep, sep2, *sep2_loc, *key, *value, temp;
+    int inquote;
     const char QUOTE = '"';
     origS = s = strdup(getsval(x));
     sep = ';'; sep2 = kw_delimiter;
-    int n;
-    n = 0;
+    int n = 0;  // number of fields held in n
 
     if (*s == '.' && (*(s+1)=='\0' || *(s+1)==' ')) // empty field can be represented by a dot
         *s = '\0';  // drop through to report 0 fields
@@ -284,11 +286,14 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
             s++;
             continue;
         }
+        key = s;
 
-        key = s; sep2_loc = NULL;
-        while (*s != sep && *s != '\n' && *s != '\0') {
+        sep2_loc = NULL; inquote = 0; // set value delimiter loc and handle sep char in quotes
+        while ( (*s != sep || inquote) && *s != '\n' && *s != '\0' ) {
             if (*s == sep2 && sep2_loc==NULL)  // first equal sign encountered is value separator
                 sep2_loc = s;
+            else if (*s == QUOTE)
+                inquote = !inquote;
             s++;
         }
 
@@ -314,14 +319,14 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
         while (*value == ' ') value++;  // skip spaces after equal sign, so value has beginning spaces trimmed
 
         // replace any spaces before separator with nulls, so value has ending spaces trimmed
-        for (char* pc=(s-1); pc > value && *pc==' '; pc--)
-            *pc = '\0';
+        char *valend;
+        for (valend=(s-1); valend > value && *valend==' '; valend--)
+            *valend = '\0';
 
         // for gtf files we remove the quotes around the value
         if (del_val_quotes && *value == QUOTE) {
             value++;
-            char* valend = s-1;
-            if (valend > value && *valend == QUOTE)
+            if (valend >= value && *valend == QUOTE)
                 *valend = '\0';
         }
 
@@ -338,8 +343,8 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
         }
 
         *sep2_loc = sep2;
-
         *s = temp;
+
         if (*s++ == '\0')
             break;
     }
@@ -502,10 +507,11 @@ Cell *bio_func(int f, Cell *x, Node **a)
                 posp->sval = (char *) makesymtab(NSYMTAB);
             }
         } else {
-            if (f != BIO_GTFATTR)
-                FATAL("gffattr(attr_str, array[, pos_array]) requires at least two arguments and allows an optional third");
-            else
-                FATAL("gtfattr(attr_str, array[, pos_array]) requires at least two arguments and allows an optional third");
+            char usage[150];
+            strcpy(usage, "gffattr(attr_str, array[, pos_array]) requires at least two arguments and allows an optional third");
+            if (f == BIO_GTFATTR)
+                usage[1] = 't';
+            FATAL(usage);
         }
         freesymtab(ap);
         ap->tval &= ~STR;
