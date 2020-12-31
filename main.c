@@ -22,7 +22,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 ****************************************************************/
 
-const char	*version = "version 20110810 [bioawk_cas 20201228]";
+const char	*version = "version 20110810 [bioawk_cas 20201231]";
 const char	*usage_str = "\nusage: %s [-F fs] [-v var=value] [-c fmt] [-tH] [-f progfile | 'prog'] [file ...]\n\n";
 
 #define DEBUG
@@ -84,7 +84,8 @@ int main(int argc, char *argv[])
 	                printf(usage_str, cmdname);
                         bio_get_fmt("");
                         printf("\nbioawk functions:\n\tgc meanqual qualcount revcomp reverse trimq and or xor\n"
-                               "\ttranslate gffattr gtfattr systime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat\n\n");
+                               "\ttranslate gffattr gtfattr samattr\n"
+                               "\tsystime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat\n\n");
                         exit(0);
                         break;
                 }

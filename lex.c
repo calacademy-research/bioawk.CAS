@@ -59,7 +59,7 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "do",		DO,		DO },
 	{ "edit_dist",	BIO_FEDLIB,	BLTIN }, /* edit_dist() support using edlib library */
 	{ "else",	ELSE,		ELSE },
-        { "end_adapter_pos", BIO_ADAPATEND, BLTIN }, /* for prefix of adapter at sequence end */
+	{ "end_adapter_pos", BIO_ADAPATEND, BLTIN }, /* for prefix of adapter at sequence end */
 	{ "exit",	EXIT,		EXIT },
 	{ "exp",	FEXP,		BLTIN },
 	{ "fflush",	FFLUSH,		BLTIN },
@@ -79,9 +79,9 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "length",	FLENGTH,	BLTIN },
 	{ "log",	FLOG,		BLTIN },
 	{ "match",	MATCHFCN,	MATCHFCN },
-        { "md5",	BIO_FMD5,	BLTIN },
+	{ "md5",	BIO_FMD5,	BLTIN },
 	{ "meanqual",	BIO_FMEANQUAL,	BLTIN },
-        { "modstr", 	BIO_MODSTR,	BLTIN },
+	{ "modstr", 	BIO_MODSTR,	BLTIN },
 	{ "next",	NEXT,		NEXT },
 	{ "nextfile",	NEXTFILE,	NEXTFILE },
 	{ "or",		BIO_FOR,	BLTIN },
@@ -92,6 +92,7 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "return",	RETURN,		RETURN },
 	{ "revcomp",BIO_FREVCOMP, BLTIN },
 	{ "reverse",BIO_FREVERSE, BLTIN },
+    { "samattr",BIO_SAMATTR, BLTIN },
 	{ "setat",	BIO_FSETAT, 	BLTIN },  /* setat() directly changes values in string by position JBH_CAS 06Mar2019 */
 	{ "sin",	FSIN,		BLTIN },
 	{ "split",	SPLIT,		SPLIT },
@@ -101,7 +102,7 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "sub",	SUB,		SUB },
 	{ "substr",	SUBSTR,		SUBSTR },
 	{ "system",	FSYSTEM,	BLTIN },
-        { "systime",    BIO_FSYSTIME,   BLTIN },  /* systime() return number of seconds since EPOCH (01Jan1970) JBH_CAS 12Aug2019 */
+	{ "systime",    BIO_FSYSTIME,   BLTIN },  /* systime() return number of seconds since EPOCH (01Jan1970) JBH_CAS 12Aug2019 */
 	{ "tolower",	FTOLOWER,	BLTIN },
 	{ "toupper",	FTOUPPER,	BLTIN },
     {"translate", BIO_TRANSLATE, BLTIN},

@@ -53,6 +53,7 @@ int bio_getrec(char **pbuf, int *psize, int isrecord);
 #define BIO_APPLYCHARS 216 /* applytochars(str, eval_for_each_char_in_str[, eval_for_each_char...]) -- loops over chars in str executing arg with var CHAR set */
 #define BIO_GFFATTR   217 /* added in github.com/ctSkennerton/bioawk */
 #define BIO_GTFATTR   218 /* same as for gffattr but uses space as key/value delimiter instead of equal sign */
+#define BIO_SAMATTR   219 /* get sam format tags in format [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]*/
 
 struct Cell;
 struct Node;

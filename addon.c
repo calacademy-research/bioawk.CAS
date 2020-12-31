@@ -260,7 +260,7 @@ void bio_translate(char *dna, char *out, int table)
 }
 
 void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter, int del_val_quotes) {
-    /* attribute(x, array [, pos_array])
+    /* bio_attribute(x, array [, pos_array])
             x, which is a string with the tags or attributes field
               of either gff, or gtf format.
             array, which is the array created by parsing the string.
@@ -330,7 +330,6 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
                 *valend = '\0';
         }
 
-        // bio_attribute_inner(t, &key, &value, &temp2);
         if (is_number(value))
             setsymtab(key, value, atof(value), STR|NUM, (Array *) ap->sval);
         else
@@ -353,6 +352,70 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
         y->tval = NUM;
         y->fval = n;
         setfval(y, (Awkfloat) n);
+    }
+}
+
+void sam_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
+    /* sam_attribute(x, array [, pos_array])
+            x, which is a string with sam tags separated by tabs, usually called with $0 the complete sam line
+            array, which is the array created by parsing the string.
+            optional pos_array, key is field number and value is the field's key in array.
+
+            will return the number of keys in the array in y.
+            tags match format [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]
+    */
+
+    char *origS, *s, *tag, *value, typ, temp, tab = '\t', colon = ':';
+    int tags = 0; // number of tags found
+
+    origS = s = strdup(getsval(x));
+    if(*s != '\0' && *(++s) != '\0') // skip to 3rd char of string if it is at least 2 chars
+        s++;
+
+    while (*s != '\0') {
+        if (*s != colon) { // skip to a colon which is at least at 3rd char of string
+            s++;
+            continue;
+        }
+        tag = NULL; value = NULL;
+        if (isalpha(*(s-2)) && isalnum(*(s-1))) { // have [A-Za-z][A-Za-z0-9]:
+            if ((s-2) == origS || isspace(*(s-3))) { // two char tag id either at string start or after space
+                tag = s-2;
+                *s = '\0'; // replace colon after tag with '\0' so we can copy it as str into symtab var
+                typ = *(++s);
+                if (typ == 'A' || typ == 'i' || typ == 'f' || typ == 'Z' || typ == 'H' || typ == 'B') // valid type
+                    if (*(++s) == colon) // followed by a colon
+                        value = ++s;
+            }
+        }
+        if (tag==NULL || value==NULL) // ill-formed in some way
+            continue;
+
+        tags++;
+        while (*s != '\0' && *s != tab)
+            s++;
+        temp = *s;
+        *s = '\0';
+
+        if (is_number(value))
+            setsymtab(tag, value, atof(value), STR|NUM, (Array *) ap->sval);
+        else
+            setsymtab(tag, value, 0.0, STR, (Array *) ap->sval);
+
+        if (posp) {
+            char numstr[50];
+            snprintf(numstr, sizeof(numstr), "%d", tags);
+            setsymtab(numstr, tag, 0.0, STR, (Array *) posp->sval);
+        }
+
+        *s = temp; // either '\0' to stop loop or tab to keep looking for more tags
+    }
+
+    free(origS);
+    if (y != NULL) {  // y is the variable used to return the result, in this case the number of attribute fields
+        y->tval = NUM;
+        y->fval = tags;
+        setfval(y, (Awkfloat) tags);
     }
 }
 
@@ -496,7 +559,7 @@ Cell *bio_func(int f, Cell *x, Node **a)
         bio_translate(buf, out, transtable);
         setsval(y, out);
         free(out);
-    } else if (f == BIO_GFFATTR || f == BIO_GTFATTR) {
+    } else if (f == BIO_GFFATTR || f == BIO_GTFATTR || f == BIO_SAMATTR) {
         Cell * ap = NULL; Cell * posp = NULL;
         if (a[1]->nnext != 0) {
             ap = execute(a[1]->nnext);
@@ -511,15 +574,22 @@ Cell *bio_func(int f, Cell *x, Node **a)
             strcpy(usage, "gffattr(attr_str, array[, pos_array]) requires at least two arguments and allows an optional third");
             if (f == BIO_GTFATTR)
                 usage[1] = 't';
+            else if (f == BIO_SAMATTR) {
+                usage[0] = 's'; usage[1] = 'a'; usage[2] = 'm';
+            }
             FATAL(usage);
         }
         freesymtab(ap);
         ap->tval &= ~STR;
         ap->tval |= ARR;
         ap->sval = (char *) makesymtab(NSYMTAB);
-        char kw_delimiter = (f == BIO_GTFATTR) ? ' ' : '=';
-        int del_val_quotes = (f == BIO_GTFATTR);
-        bio_attribute(x, ap, posp, y, kw_delimiter, del_val_quotes);
+        if (f != BIO_SAMATTR) {
+            char kw_delimiter = (f == BIO_GTFATTR) ? ' ' : '=';
+            int del_val_quotes = (f == BIO_GTFATTR);
+            bio_attribute(x, ap, posp, y, kw_delimiter, del_val_quotes);
+        }
+        else
+            sam_attribute(x, ap, posp, y);
     } else if (f == BIO_FSYSTIME) { /* 12Aug2019 JBH_CAS add systime() that gawk has had for awhile */
         time_t lclock;
         (void) time(& lclock);
