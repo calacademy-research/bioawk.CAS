@@ -167,7 +167,7 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
            
            flags: 1 N matches ACTG; 2 Y matches CT, R matches AG; 3 both.
            
-           Returns string starting with edit distance, -1 for no match, 0 for perfect and other values.
+           Returns string starting with edit distance, -1 for no match 0 for exact match, and other values.
 
 Example below looks for a PacBio amplification adapter in CCS reads.
 Search mode is 22: 2 for InFix (HW) search plus 20 to add the extended CIGAR match to the output.
