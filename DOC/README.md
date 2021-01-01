@@ -192,8 +192,8 @@ bawk '
          #mode = InFix
          mode = extmode
    }
-
-   {  slen = length($seq)   # check for amplification adapter
+   # check for amplification adapter
+   {  slen = length($seq)
       prefix = $name "\t"
 
       adapterMatch(adap,    "ampF")
