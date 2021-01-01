@@ -169,6 +169,54 @@ Optional arguments 4 and 5 allow for case insensitive comparisons and the abilit
            
            Returns string starting with edit distance, -1 for no match, 0 for perfect and other values.
 
+Example below looks for a PacBio amplification adapter in CCS reads.
+Search mode is 22: 2 for InFix (HW) search plus 20 to add the extended CIGAR match to the output.
+The edit_dist() call is in the adapterMatch function which is called for forward and for reverse compliment of the adapter.
+```
+bawk '
+   function int_ceil(f) { add = !(f==int(f)); return int(f)+add }
+   function adapterMatch(Adapter, AdapStr) {
+      matchInfo = edit_dist(max_miss, Adapter, alen, $seq, slen, mode)
+      if(matchInfo >= 0) {
+         printf "%s %s %s", prefix, AdapStr, matchInfo
+         prefix = "\t"
+      }
+   }
+
+   BEGIN{InFix = 2; ExtCIGAR = 20; RegCIGAR = 10; extmode = InFix + ExtCIGAR; ComputeLen = -1
+
+         adap="AAGCAGTGGTATCAACGCAGAGTACT"; adap_rc=adap; revcomp(adap_rc)
+         alen=length(adap)
+         max_miss = int_ceil(alen/10) + 1 # little less than 90% match at worst
+
+         #mode = InFix
+         mode = extmode
+   }
+
+   {  slen = length($seq)   # check for amplification adapter
+      prefix = $name "\t"
+
+      adapterMatch(adap,    "ampF")
+      adapterMatch(adap_rc, "ampR")
+
+      if(prefix == "\t")
+         print "\t rdlen " slen
+ }' subreads_ccs.fasta
+```
+This outputs in part
+```
+m64044_201011_075919/1/ccs       ampF 0 26= 1 26         ampR 0 26= 11994 12019  rdlen 12019
+m64044_201011_075919/2/ccs       ampF 0 26= 1 26         ampR 0 26= 17194 17219  rdlen 17219
+m64044_201011_075919/3/ccs       ampF 0 26= 1 26         ampR 2 12=1D7=1D7= 14871 14898  rdlen 14898
+m64044_201011_075919/7/ccs       ampF 1 5=1I20= 1 25     ampR 3 8=1I4=1X5=1X6= 19327 19351       rdlen 19351
+m64044_201011_075919/8/ccs       ampF 0 26= 1 26         ampR 1 25=1I 10536 10560        rdlen 10560
+m64044_201011_075919/48/ccs      ampF 0 26= 1 26         ampR 0 26= 11256 11281  rdlen 11281
+m64044_201011_075919/49/ccs      ampF 1 5=1I20= 1 25     ampR 2 19=1X5=1I 8912 8936 8912 8937 8912 8938  rdlen 8938
+m64044_201011_075919/51/ccs      ampF 1 10=1D16= 1 27    ampR 0 26= 11678 11703  rdlen 11703
+m64044_201011_075919/118/ccs     ampF 2 17=1X5=1D3= 1 27         ampR 0 26= 12642 12667  rdlen 12667
+m64044_201011_075919/120/ccs     ampF 0 26= 1 26         ampR 1 4=1D22= 17923 17949      rdlen 17949
+m64044_201011_075919/124/ccs     ampF 0 26= 1 26         ampR 0 26= 13041 13066  rdlen 13066
+```
 
 (11)  ``end_adapter_pos`` checks the last 16 nt of the sequence against the first 16 nt of the adapter seq, then the last 15 nt of the read for the first 15 nt of the adapter
 and so-on until the last 4 nt of the read is checked with first 4 adapter nt. 
