@@ -1,6 +1,8 @@
-#### Functions added to bioawk ####
+### Functions added to bioawk ###
 
-``translate`` ``gffattr``  originally added in https://github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``. Optional arg added to this version of gffattr. Also added ``gtfattr`` to parse the slightly different syntax of gtf format attribute fields.
+**ctSkennerton's and derivative functions** ``translate`` ``gffattr`` ``gtfattr`` ``samattr``
+
+``translate`` ``gffattr``  originally added in https://github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``. Optional arg added to this version of gffattr. Also ``gtfattr`` to parse the slightly different syntax of gtf attributes and ``samattr`` for sam tags.
 
 (1) ``translate(nucl_str [, table_num])`` translates nucleotide string nucl_str. Returns the protein sequence.
 
@@ -13,7 +15,7 @@ can also use different translation tables. Here are the [genetic code table numb
 (2) ``gffattr( attr_str, arr[, pos_arr])`` or ``gtfattr( attr_str, arr[, pos_arr])`` parses the attr_str and puts the values in the arr argument. The attr_str is expected to be in the format of the gff attribute field (gtf attribute field format for gtfattr).
 This field has subfields delimited by semi-colons where each subfield has a name and a value after an equal sign (space for gtfattr). Quotes removed around value for gtfattr.
 
-Returns number of subfields, which is same as length(arr). Optional pos_array will put the first key value in pos_arr[1], second in pos_arr[2], etc.
+Returns number of subfields, which is same as length(arr). Optional pos_array will put the first key name in pos_arr[1], second in pos_arr[2], etc.
 The pos_arr option added in bioawk_cas.
 For example, if this is the first line of the gff file:
 
@@ -56,25 +58,29 @@ Output in same order as attr string
 
 Remaining functions have been added in bioawk_cas
 
-(2b) ``samattr(sam_line, arr[, pos_arr])`` is similar to gffattr and gtfattr except that since the tag fields are tab delimited, the entire sam line is provided to the function using the $0 variable. For example, if this was the sam line:
+(2b) ``samattr(sam_line, arr[, pos_arr])`` similar to gffattr and gtfattr except since tag fields are tab delimited, the entire line is provided to the function using the $0 variable. The type char is also in pos_arr with 'T' prefixed position, pos_arr["T1"], pos_arr["T2"], etc. For example, if this was the sam line:
 ```
 ref1_grp1_p004  99      ref1    13      6       10M     =       37      34      CCGGGGATCC      ''''''''''      fa:f:1.38e-23   za:Z:xRG:Z:grp2 RG:Z:grp1       NM:i:0  MD:Z:10
 ```
 then
 ```
-bioawk_cas '!/^@/ {
+bioawk_cas 'BEGIN{OFS="\t"}
+!/^@/ {
     tot = samattr($0, ar, pos)
-    for(t=1;t<=tot;t++)
-       print t "\t" pos[t] "\t" ar[ pos[t]  ]
+    for(t=1; t<=tot; t++) {
+      key = pos[t]; val = ar[key]
+      typ = pos["T" t]
+      print t, key,  val, typ
+    }
 } ' oneliner_example.sam
 ```
 outputs
 ```
-1       fa      1.38e-23
-2       za      xRG:Z:grp2
-3       RG      grp1
-4       NM      0
-5       MD      10
+1       fa      1.38e-23    f
+2       za      xRG:Z:grp2  Z
+3       RG      grp1    Z
+4       NM      0   i
+5       MD      10  Z
 ```
 
 **Miscellaneous functions** ``systime`` ``md5``
