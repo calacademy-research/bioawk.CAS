@@ -383,13 +383,14 @@ void sam_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
                 tag = s-2;
                 *s = '\0'; // replace colon after tag with '\0' so we can copy it as str into symtab var
                 typ = *(++s);
+                if (typ != '\0') s++; // skip to char after type char, expected to be colon
                 if (typ == 'A' || typ == 'i' || typ == 'f' || typ == 'Z' || typ == 'H' || typ == 'B') // valid type
-                    if (*(++s) == colon) // followed by a colon
+                    if (*s == colon) // followed by a colon
                         value = ++s;
             }
         }
         if (tag==NULL || value==NULL) { // ill-formed in some way, skip over colon and continue
-            s++;
+            if (*s != '\0') s++;
             continue;
         }
 
