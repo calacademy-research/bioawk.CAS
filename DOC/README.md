@@ -56,25 +56,29 @@ Output in same order as attr string
 
 Remaining functions have been added in bioawk_cas
 
-(2b) ``samattr(sam_line, arr[, pos_arr])`` is similar to gffattr and gtfattr except that since the tag fields are tab delimited, the entire sam line is provided to the function using the $0 variable. For example, if this was the sam line:
+(2b) ``samattr(sam_line, arr[, pos_arr])`` similar to gffattr and gtfattr except since tag fields are tab delimited, the entire line is provided to the function using the $0 variable. Type char in pos_arr with 'T' prefixed position , pos_arr["T1"], pos_arr["T2"], etc. For example, if this was the sam line:
 ```
 ref1_grp1_p004  99      ref1    13      6       10M     =       37      34      CCGGGGATCC      ''''''''''      fa:f:1.38e-23   za:Z:xRG:Z:grp2 RG:Z:grp1       NM:i:0  MD:Z:10
 ```
 then
 ```
-bioawk_cas '!/^@/ {
+bioawk_cas 'BEGIN{OFS="\t"}
+!/^@/ {
     tot = samattr($0, ar, pos)
-    for(t=1;t<=tot;t++)
-       print t "\t" pos[t] "\t" ar[ pos[t]  ]
+    for(t=1; t<=tot; t++) {
+      key = pos[t]
+      typ = pos["T" t]
+      print t, key,  ar[key], typ
+    }
 } ' oneliner_example.sam
 ```
 outputs
 ```
-1       fa      1.38e-23
-2       za      xRG:Z:grp2
-3       RG      grp1
-4       NM      0
-5       MD      10
+1       fa      1.38e-23    f
+2       za      xRG:Z:grp2  Z
+3       RG      grp1    Z
+4       NM      0   i
+5       MD      10  Z
 ```
 
 **Miscellaneous functions** ``systime`` ``md5``
