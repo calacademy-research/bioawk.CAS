@@ -56,7 +56,7 @@ Output in same order as attr string
 
 Remaining functions have been added in bioawk_cas
 
-(2b) ``samattr(sam_line, arr[, pos_arr])`` similar to gffattr and gtfattr except since tag fields are tab delimited, the entire line is provided to the function using the $0 variable. Type char in pos_arr with 'T' prefixed position , pos_arr["T1"], pos_arr["T2"], etc. For example, if this was the sam line:
+(2b) ``samattr(sam_line, arr[, pos_arr])`` similar to gffattr and gtfattr except since tag fields are tab delimited, the entire line is provided to the function using the $0 variable. The type char isin pos_arr with 'T' prefixed position, pos_arr["T1"], pos_arr["T2"], etc. For example, if this was the sam line:
 ```
 ref1_grp1_p004  99      ref1    13      6       10M     =       37      34      CCGGGGATCC      ''''''''''      fa:f:1.38e-23   za:Z:xRG:Z:grp2 RG:Z:grp1       NM:i:0  MD:Z:10
 ```
