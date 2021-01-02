@@ -66,9 +66,9 @@ bioawk_cas 'BEGIN{OFS="\t"}
 !/^@/ {
     tot = samattr($0, ar, pos)
     for(t=1; t<=tot; t++) {
-      key = pos[t]
+      key = pos[t]; val = ar[key]
       typ = pos["T" t]
-      print t, key,  ar[key], typ
+      print t, key,  val, typ
     }
 } ' oneliner_example.sam
 ```
