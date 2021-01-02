@@ -377,7 +377,7 @@ void sam_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
             s++;
             continue;
         }
-        tag = NULL; value = NULL;
+        tag = NULL; value = NULL; typ = '?';
         if (isalpha(*(s-2)) && isalnum(*(s-1))) { // have [A-Za-z][A-Za-z0-9]:
             if ((s-2) == origS || isspace(*(s-3))) { // two char tag id either at string start or after space
                 tag = s-2;
@@ -405,9 +405,13 @@ void sam_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
             setsymtab(tag, value, 0.0, STR, (Array *) ap->sval);
 
         if (posp) {
-            char numstr[50];
-            snprintf(numstr, sizeof(numstr), "%d", tags);
+            char numstr[50]; char typ_str[2];
+            snprintf(numstr, sizeof(numstr), "%d", tags); // tag number contains tag name
             setsymtab(numstr, tag, 0.0, STR, (Array *) posp->sval);
+
+            typ_str[0] = typ; typ_str[1] = '\0';
+            snprintf(numstr, sizeof(numstr), "T%d", tags); // tag number prefixed with 'T' tag one char type
+            setsymtab(numstr, typ_str, 0.0, STR, (Array *) posp->sval);
         }
 
         *s = temp; // either '\0' to stop loop or tab to keep looking for more tags
