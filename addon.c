@@ -388,8 +388,10 @@ void sam_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
                         value = ++s;
             }
         }
-        if (tag==NULL || value==NULL) // ill-formed in some way
+        if (tag==NULL || value==NULL) { // ill-formed in some way, skip over colon and continue
+            s++;
             continue;
+        }
 
         tags++;
         while (*s != '\0' && *s != tab)
