@@ -2,7 +2,7 @@
 
 **ctSkennerton's and derivative functions** ``translate`` ``gffattr`` ``gtfattr`` ``samattr``
 
-``translate`` ``gffattr``  originally added in https://github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``. Optional arg added to this version of gffattr. Also added ``gtfattr`` to parse the slightly different syntax of gtf format attribute fields.
+``translate`` ``gffattr``  originally added in https://github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``. Optional arg added to this version of gffattr. Also ``gtfattr`` to parse the slightly different syntax of gtf format attributes and ``samattr`` for sam tags.
 
 (1) ``translate(nucl_str [, table_num])`` translates nucleotide string nucl_str. Returns the protein sequence.
 
