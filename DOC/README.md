@@ -1,4 +1,6 @@
-#### Functions added to bioawk ####
+### Functions added to bioawk ###
+
+**ctSkennerton's and derivative functions** ``translate`` ``gffattr`` ``gtfattr`` ``samattr``
 
 ``translate`` ``gffattr``  originally added in https://github.com/ctSkennerton/bioawk and ``bawk`` script added here is ``bioawk_cas -c fastx "$@"``. Optional arg added to this version of gffattr. Also added ``gtfattr`` to parse the slightly different syntax of gtf format attribute fields.
 
