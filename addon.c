@@ -10,6 +10,7 @@
 extern char *md5str(uint8_t *msg, size_t len);
 
 int bio_flag = 0, bio_fmt = BIO_NULL;
+#define SKIPNONNULL(pch) (*pch != '\0' && pch++) // expression version of if(*pch != '\0') pch++;
 
 static const char *col_defs[][15] = { /* FIXME: this is convenient, but not memory efficient. Shouldn't matter. */
     {"header", NULL},
@@ -259,6 +260,14 @@ void bio_translate(char *dna, char *out, int table)
         out[i] = '\0';
 }
 
+Cell *set_array_ele(const char *key, const char *val, Array *ap)
+{
+    if (is_number(val))
+        return setsymtab(key, val, atof(val), STR|NUM, ap);
+    else
+        return setsymtab(key, val, 0.0, STR, ap);
+}
+
 void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter, int del_val_quotes) {
     /* bio_attribute(x, array [, pos_array])
             x, which is a string with the tags or attributes field
@@ -271,20 +280,18 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
             kw_delimiter '=' for gff ' ' for gtf, del_val_quotes true for gtf
     */
 
-    char *origS, *s, sep, sep2, *sep2_loc, *key, *value, temp;
-    int inquote;
-    const char QUOTE = '"';
-    origS = s = strdup(getsval(x));
-    sep = ';'; sep2 = kw_delimiter;
-    int n = 0;  // number of fields held in n
+    char *s, *sep2_loc, *key, *value, *key_term, *val_term, temp, temp2;
+    int inquote, num_flds; // number of fields;
+    const char sep = ';',  sep2 = kw_delimiter,  QUOTE = '"';
 
-    if (*s == '.' && (*(s+1)=='\0' || *(s+1)==' ')) // empty field can be represented by a dot
+    s = getsval(x); // use string directly, inserting '\0' temporarily then replacing with original chars
+
+    if ( *s == '.' && (*(s+1)=='\0' || isspace(*(s+1))) ) // empty field can be represented by a dot
         *s = '\0';  // drop through to report 0 fields
 
-    while (*s != '\0') {  // make sure not to process empty string and ignore semi-colon at end of string
-        if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {  // handle doubled semi-colons, prefix spaces and partial handling for other malformed items
-            s++;
-            continue;
+    for (num_flds=0; *s != '\0'; SKIPNONNULL(s) ) {  // make sure not to process empty string and ignore semi-colon at end of string
+        if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {
+            continue; // handle doubled semi-colons, prefix spaces and partial handling for other malformed items
         }
         key = s;
 
@@ -297,61 +304,48 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
             s++;
         }
 
-        if (sep2_loc == NULL) // if no equal sign, then invalid format
-            continue;
+        if (sep2_loc != NULL) { // if equal sign, then presume valid format
+            val_term = s; // set value terminator at separator or end of string
+            key_term = sep2_loc; // set key terminator at equal sign
 
-        n++;  // increment count of fields
+            num_flds++;  // increment count of fields
 
-        /*we save the character which should be sep or '\0', then change it
-        to the null character to terminate the string. After we set the
-        string in the dictionary we set the character back*/
-        temp = *s;
-        *s = '\0';
+            // if spaces before sep2_loc, move key_term back so key has ending spaces trimmed
+            for (char *pc = (key_term-1); pc > key && *pc == ' '; pc--)
+                key_term--;
 
-        /* ditto with value separator, so key ends with null char */
-        *sep2_loc = '\0';
+            value = sep2_loc; value++;
+            while (*value == ' ') value++;  // skip spaces after equal sign, so value has beginning spaces trimmed
 
-        // replace any spaces before sep2_loc with nulls, so key has ending spaces trimmed
-        for (char* pc=(sep2_loc-1); pc > key && *pc==' '; pc--)
-            *pc = '\0';
+            // if any spaces before separator move val_term back so value has ending spaces trimmed
+            for (char *pc = (s-1); pc > value && *pc == ' '; pc--)
+                val_term--;
 
-        value = sep2_loc; value++;
-        while (*value == ' ') value++;  // skip spaces after equal sign, so value has beginning spaces trimmed
+            // for gtf files we remove the quotes around the value
+            if (del_val_quotes && *value == QUOTE) {
+                value++;
+                if (val_term >= value && *val_term == QUOTE)
+                    val_term--;
+            }
 
-        // replace any spaces before separator with nulls, so value has ending spaces trimmed
-        char *valend;
-        for (valend=(s-1); valend > value && *valend==' '; valend--)
-            *valend = '\0';
+            temp = *val_term; *val_term = '\0'; // set sep at end of field to '\0' and remember it to put it back
+            temp2 = *key_term; *key_term = '\0'; // same with key terminator
 
-        // for gtf files we remove the quotes around the value
-        if (del_val_quotes && *value == QUOTE) {
-            value++;
-            if (valend >= value && *valend == QUOTE)
-                *valend = '\0';
+            set_array_ele(key, value, (Array *) ap->sval);
+
+            if (posp) {
+                char numstr[50];
+                snprintf(numstr, sizeof(numstr), "%d", num_flds);
+                set_array_ele(numstr, key, (Array *) posp->sval);
+            }
+
+            *key_term = temp2;
+            *val_term = temp; // this will be the field separator char or '\0' or ' '  or QUOTE before separator
         }
+    } // for
 
-        if (is_number(value))
-            setsymtab(key, value, atof(value), STR|NUM, (Array *) ap->sval);
-        else
-            setsymtab(key, value, 0.0, STR, (Array *) ap->sval);
-
-        if (posp) {
-            char numstr[50];
-            snprintf(numstr, sizeof(numstr), "%d", n);
-            setsymtab(numstr, key, 0.0, STR, (Array *) posp->sval);
-        }
-
-        *sep2_loc = sep2;
-        *s = temp;
-
-        if (*s++ == '\0')
-            break;
-    }
-    free(origS);
     if (y != NULL) {  // y is the variable used to return the result, in this case the number of attribute fields
-        y->tval = NUM;
-        y->fval = n;
-        setfval(y, (Awkfloat) n);
+        setfval(y, (Awkfloat) num_flds);
     }
 }
 
@@ -362,67 +356,53 @@ void sam_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
             optional pos_array, key is field number and value is the field's key in array.
 
             will return the number of keys in the array in y.
-            tags match format [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]
+            tags match format [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]*
     */
 
-    char *origS, *s, *tag, *value, typ, temp, tab = '\t', colon = ':';
-    int tags = 0; // number of tags found
+    char *origS, *s, *value, typ, temp;
+    const char tab = '\t', colon = ':';
+    char tag_str[3] = {0}, typ_str[2] = {0};  // tag id is 2 char, type is 1 char. init to NULLs
+    int num_tags = 0; // number of tags found
 
-    origS = s = strdup(getsval(x));
-    if(*s != '\0' && *(++s) != '\0') // skip to 3rd char of string if it is at least 2 chars
-        s++;
+    origS = s = getsval(x);
+    SKIPNONNULL(s); SKIPNONNULL(s); // skip to 3rd char of string if it is at least 2 chars
 
-    while (*s != '\0') {
+    for (num_tags=0; *s != '\0'; SKIPNONNULL(s)) {
         if (*s != colon) { // skip to a colon which is at least at 3rd char of string
-            s++;
             continue;
         }
-        tag = NULL; value = NULL; typ = '?';
+        value = NULL;
         if (isalpha(*(s-2)) && isalnum(*(s-1))) { // have [A-Za-z][A-Za-z0-9]:
             if ((s-2) == origS || isspace(*(s-3))) { // two char tag id either at string start or after space
-                tag = s-2;
-                *s = '\0'; // replace colon after tag with '\0' so we can copy it as str into symtab var
-                typ = *(++s);
-                if (typ != '\0') s++; // skip to char after type char, expected to be colon
+                tag_str[0] = *(s-2); tag_str[1] = *(s-1);
+                SKIPNONNULL(s); // skip colon after tag id
+                typ_str[0] = typ = *s;
+                SKIPNONNULL(s); // skip to char after type char, expected to be colon
                 if (typ == 'A' || typ == 'i' || typ == 'f' || typ == 'Z' || typ == 'H' || typ == 'B') // valid type
                     if (*s == colon) // followed by a colon
                         value = ++s;
             }
         }
-        if (tag==NULL || value==NULL) { // ill-formed in some way, skip over colon and continue
-            if (*s != '\0') s++;
-            continue;
+        if (value != NULL) {
+            num_tags++;
+            while (*s != '\0' && *s != tab) // move to char after value end
+                s++;
+
+            temp = *s; *s = '\0';
+            set_array_ele(tag_str, value, (Array *) ap->sval); // copy value directly from sam line variable
+            *s = temp; // either '\0' to stop loop or tab to keep looking for more tags
+
+            if (posp) {
+                char numstr[50];
+                snprintf(numstr, sizeof(numstr), "T%d", num_tags); // pos[tag number] = tag name
+                set_array_ele(numstr + 1, tag_str, (Array *) posp->sval); // key skips over initial T
+                set_array_ele(numstr, typ_str, (Array *) posp->sval); // key includes initial T
+            }
         }
+    } // for
 
-        tags++;
-        while (*s != '\0' && *s != tab)
-            s++;
-        temp = *s;
-        *s = '\0';
-
-        if (is_number(value))
-            setsymtab(tag, value, atof(value), STR|NUM, (Array *) ap->sval);
-        else
-            setsymtab(tag, value, 0.0, STR, (Array *) ap->sval);
-
-        if (posp) {
-            char numstr[50]; char typ_str[2];
-            snprintf(numstr, sizeof(numstr), "%d", tags); // tag number contains tag name
-            setsymtab(numstr, tag, 0.0, STR, (Array *) posp->sval);
-
-            typ_str[0] = typ; typ_str[1] = '\0';
-            snprintf(numstr, sizeof(numstr), "T%d", tags); // tag number prefixed with 'T' tag one char type
-            setsymtab(numstr, typ_str, 0.0, STR, (Array *) posp->sval);
-        }
-
-        *s = temp; // either '\0' to stop loop or tab to keep looking for more tags
-    }
-
-    free(origS);
     if (y != NULL) {  // y is the variable used to return the result, in this case the number of attribute fields
-        y->tval = NUM;
-        y->fval = tags;
-        setfval(y, (Awkfloat) tags);
+        setfval(y, (Awkfloat) num_tags);
     }
 }
 
