@@ -287,7 +287,7 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
     s = getsval(x); // use string directly, inserting '\0' temporarily then replacing with original chars
 
     if ( *s == '.' && (*(s+1)=='\0' || isspace(*(s+1))) ) // empty field can be represented by a dot
-        SKIPNONNULL(s);  // drop through to report 0 fields
+        while (*s != '\0') SKIPNONNULL(s);  // drop through to report 0 fields
 
     for (num_flds=0; *s != '\0'; SKIPNONNULL(s) ) {  // make sure not to process empty string and ignore semi-colon at end of string
         if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {
