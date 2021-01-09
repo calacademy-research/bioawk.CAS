@@ -268,28 +268,26 @@ Cell *set_array_ele(const char *key, const char *val, Array *ap)
         return setsymtab(key, val, 0.0, STR, ap);
 }
 
-void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter, int del_val_quotes) {
+int bio_attribute(Cell * x, Cell * ap, Cell * posp, char kw_delimiter, int del_val_quotes) {
     /* bio_attribute(x, array [, pos_array])
-            x, which is a string with the tags or attributes field
-              of either gff, or gtf format.
-            array, which is the array created by parsing the string.
+            x, string with tag or attribute fields of either gff or gtf format.
+            array, array key is attribute id and value is tag value.
             optional pos_array, key is field number and value is the field's key in array.
-
-            will return the number of keys in the array in y.
-
             kw_delimiter '=' for gff ' ' for gtf, del_val_quotes true for gtf
+
+            returns the number of keys.
     */
 
     char *s, *sep2_loc, *key, *value, *key_term, *val_term, temp, temp2;
     int inquote, num_flds; // number of fields;
     const char sep = ';',  sep2 = kw_delimiter,  QUOTE = '"';
 
-    s = getsval(x); // use string directly, inserting '\0' temporarily then replacing with original chars
+    s = getsval(x); // use string directly, inserting '\0's temporarily then replacing with original chars
 
     if ( *s == '.' && (*(s+1)=='\0' || isspace(*(s+1))) ) // empty field can be represented by a dot
         while (*s != '\0') SKIPNONNULL(s);  // drop through to report 0 fields
 
-    for (num_flds=0; *s != '\0'; SKIPNONNULL(s) ) {  // make sure not to process empty string and ignore semi-colon at end of string
+    for (num_flds=0; *s != '\0'; SKIPNONNULL(s)) {  // make sure not to process empty string and ignore semi-colon at end of string
         if (*s == sep || *s == sep2 || *s == ' ' || *s == '\n') {
             continue; // handle doubled semi-colons, prefix spaces and partial handling for other malformed items
         }
@@ -317,23 +315,23 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
             value = sep2_loc; value++;
             while (*value == ' ') value++;  // skip spaces after equal sign, so value has beginning spaces trimmed
 
-            // if any spaces before separator move val_term back so value has ending spaces trimmed
-            for (char *pc = (s-1); pc > value && *pc == ' '; pc--)
+            // if any spaces before separator, move val_term back so value has ending spaces trimmed
+            for (char *pc = (val_term-1); pc > value && *pc == ' '; pc--)
                 val_term--;
 
             // for gtf files we remove the quotes around the value
             if (del_val_quotes && *value == QUOTE) {
                 value++;
-                if (val_term >= value && *val_term == QUOTE)
+                if (val_term > value && *val_term == QUOTE)
                     val_term--;
             }
 
             temp = *val_term; *val_term = '\0'; // set sep at end of field to '\0' and remember it to put it back
             temp2 = *key_term; *key_term = '\0'; // same with key terminator
 
-            set_array_ele(key, value, (Array *) ap->sval);
+            set_array_ele(key, value, (Array *) ap->sval); // add attribute ID and its value to the array
 
-            if (posp) {
+            if (posp) { // add position of attribute ID into posp array with position as key and ID as value
                 char numstr[50];
                 snprintf(numstr, sizeof(numstr), "%d", num_flds);
                 set_array_ele(numstr, key, (Array *) posp->sval);
@@ -341,22 +339,20 @@ void bio_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y, char kw_delimiter
 
             *key_term = temp2;
             *val_term = temp; // this will be the field separator char or '\0' or ' '  or QUOTE before separator
-        }
+        } // if (sep2_loc != NULL)
     } // for
 
-    if (y != NULL) {  // y is the variable used to return the result, in this case the number of attribute fields
-        setfval(y, (Awkfloat) num_flds);
-    }
+    return num_flds;
 }
 
-void sam_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
+int sam_attribute(Cell * x, Cell * ap, Cell * posp) {
     /* sam_attribute(x, array [, pos_array])
-            x, which is a string with sam tags separated by tabs, usually called with $0 the complete sam line
-            array, which is the array created by parsing the string.
+            x, string with sam tags separated by tabs, usually called with $0 the complete sam line.
+            array, array created by parsing the string.
             optional pos_array, key is field number and value is the field's key in array.
+            tag, its type and value match format [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]*
 
-            will return the number of keys in the array in y.
-            tags match format [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]*
+            returns the number of keys.
     */
 
     char *origS, *s, *value, typ, temp;
@@ -395,15 +391,13 @@ void sam_attribute(Cell * x, Cell * ap, Cell * posp, Cell * y) {
             if (posp) {
                 char numstr[50];
                 snprintf(numstr, sizeof(numstr), "T%d", num_tags); // pos[tag number] = tag name
-                set_array_ele(numstr + 1, tag_str, (Array *) posp->sval); // key skips over initial T
-                set_array_ele(numstr, typ_str, (Array *) posp->sval); // key includes initial T
+                set_array_ele(numstr + 1, tag_str, (Array *) posp->sval); // nb: key skips over initial T
+                set_array_ele(numstr, typ_str, (Array *) posp->sval); // pos["T" tag number] = tag type
             }
-        }
+        } // if (value != NULL)
     } // for
 
-    if (y != NULL) {  // y is the variable used to return the result, in this case the number of attribute fields
-        setfval(y, (Awkfloat) num_tags);
-    }
+    return num_tags;
 }
 
 static float q_int2real[128];
@@ -566,6 +560,7 @@ Cell *bio_func(int f, Cell *x, Node **a)
             }
             FATAL(usage);
         }
+        int numattrs = 0;
         freesymtab(ap);
         ap->tval &= ~STR;
         ap->tval |= ARR;
@@ -573,10 +568,11 @@ Cell *bio_func(int f, Cell *x, Node **a)
         if (f != BIO_SAMATTR) {
             char kw_delimiter = (f == BIO_GTFATTR) ? ' ' : '=';
             int del_val_quotes = (f == BIO_GTFATTR);
-            bio_attribute(x, ap, posp, y, kw_delimiter, del_val_quotes);
+            numattrs = bio_attribute(x, ap, posp, kw_delimiter, del_val_quotes);
         }
         else
-            sam_attribute(x, ap, posp, y);
+            numattrs = sam_attribute(x, ap, posp);
+        setfval(y, (Awkfloat)numattrs);
     } else if (f == BIO_FSYSTIME) { /* 12Aug2019 JBH_CAS add systime() that gawk has had for awhile */
         time_t lclock;
         (void) time(& lclock);
