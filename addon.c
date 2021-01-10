@@ -271,15 +271,15 @@ Cell *set_array_ele(const char *key, const char *val, Array *ap)
 int bio_attribute(Cell * x, Cell * ap, Cell * posp, char kw_delimiter, int del_val_quotes) {
     /* bio_attribute(x, array [, pos_array])
             x, string with tag or attribute fields of either gff or gtf format.
-            array, array key is attribute id and value is tag value.
+            array, array key is attribute id and value is attribute's value.
             optional pos_array, key is field number and value is the field's key in array.
             kw_delimiter '=' for gff ' ' for gtf, del_val_quotes true for gtf
 
             returns the number of keys.
     */
 
+    int inquote, num_flds; // return number of fields
     char *s, *sep2_loc, *key, *value, *key_term, *val_term, temp, temp2;
-    int inquote, num_flds; // number of fields;
     const char sep = ';',  sep2 = kw_delimiter,  QUOTE = '"';
 
     s = getsval(x); // use string directly, inserting '\0's temporarily then replacing with original chars
@@ -348,17 +348,19 @@ int bio_attribute(Cell * x, Cell * ap, Cell * posp, char kw_delimiter, int del_v
 int sam_attribute(Cell * x, Cell * ap, Cell * posp) {
     /* sam_attribute(x, array [, pos_array])
             x, string with sam tags separated by tabs, usually called with $0 the complete sam line.
-            array, array created by parsing the string.
+            array, array created by parsing the string, key is tag, value is value.
             optional pos_array, key is field number and value is the field's key in array.
-            tag, its type and value match format [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]*
 
-            returns the number of keys.
+            tag's type and value match [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]*
+            returns the number of tags.
     */
 
+    int num_tags;  // return number of tags found
     char *origS, *s, *value, typ, temp;
+    char tag_str[3] = {0}, typ_str[2] = {0}, numstr[50];  // tag id is 2 char, type is 1 char. init to NULLs
+
     const char tab = '\t', colon = ':';
-    char tag_str[3] = {0}, typ_str[2] = {0};  // tag id is 2 char, type is 1 char. init to NULLs
-    int num_tags = 0; // number of tags found
+    const int MaxFirstValue = 90; // qual field start has small chance of looking like a tag, this lowers odds
 
     origS = s = getsval(x);
     SKIPNONNULL(s); SKIPNONNULL(s); // skip to 3rd char of string if it is at least 2 chars
@@ -374,24 +376,26 @@ int sam_attribute(Cell * x, Cell * ap, Cell * posp) {
                 SKIPNONNULL(s); // skip colon after tag id
                 typ_str[0] = typ = *s;
                 SKIPNONNULL(s); // skip to char after type char, expected to be colon
-                if (strchr("AifZHB", typ) != NULL && *s == colon) // valid type followed by a colon
+                if (strchr("ZifAHB", typ) != NULL && *s == colon) // valid type followed by a colon
                     value = ++s;
             }
         }
         if (value != NULL) {
-            num_tags++;
             while (*s != '\0' && *s != tab) // move to char after value end
                 s++;
 
-            temp = *s; *s = '\0';
-            set_array_ele(tag_str, value, (Array *) ap->sval); // copy value directly from sam line variable
-            *s = temp; // either '\0' to stop loop or tab to keep looking for more tags
+            if (num_tags > 0 || (s-value) <= MaxFirstValue) { // lower odds that qual field start is seen as tag
+                num_tags++;
 
-            if (posp) {
-                char numstr[50];
-                snprintf(numstr, sizeof(numstr), "T%d", num_tags); // pos[tag number] = tag name
-                set_array_ele(numstr + 1, tag_str, (Array *) posp->sval); // nb: key skips over initial T
-                set_array_ele(numstr, typ_str, (Array *) posp->sval); // pos["T" tag number] = tag type
+                temp = *s; *s = '\0';
+                set_array_ele(tag_str, value, (Array *) ap->sval); // copy value directly from sam line variable
+                *s = temp; // either '\0' to stop loop or tab to keep looking for more tags
+
+                if (posp) {
+                    snprintf(numstr, sizeof(numstr), "T%d", num_tags); // pos[tag number] = tag name
+                    set_array_ele(numstr + 1, tag_str, (Array *) posp->sval); // nb: key skips over initial T
+                    set_array_ele(numstr, typ_str, (Array *) posp->sval); // pos["T" tag number] = tag type
+                }
             }
         } // if (value != NULL)
     } // for
