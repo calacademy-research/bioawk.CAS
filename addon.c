@@ -374,9 +374,8 @@ int sam_attribute(Cell * x, Cell * ap, Cell * posp) {
                 SKIPNONNULL(s); // skip colon after tag id
                 typ_str[0] = typ = *s;
                 SKIPNONNULL(s); // skip to char after type char, expected to be colon
-                if (typ == 'A' || typ == 'i' || typ == 'f' || typ == 'Z' || typ == 'H' || typ == 'B') // valid type
-                    if (*s == colon) // followed by a colon
-                        value = ++s;
+                if (strchr("AifZHB", typ) != NULL && *s == colon) // valid type followed by a colon
+                    value = ++s;
             }
         }
         if (value != NULL) {
