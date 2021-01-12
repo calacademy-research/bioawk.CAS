@@ -358,11 +358,14 @@ int sam_attribute(Cell * x, Cell * ap, Cell * posp) {
     int num_tags;  // return number of tags found
     char *origS, *s, *value, typ, temp;
     char tag_str[3] = {0}, typ_str[2] = {0}, numstr[50];  // tag id is 2 char, type is 1 char. init to NULLs
-
     const char tab = '\t', colon = ':';
-    const int MaxFirstValue = 90; // qual field start has small chance of looking like a tag, this lowers odds
 
     origS = s = getsval(x);
+    if (origS == record) { // skip over the fields known to not be tags. ie skip past 11 tab chars
+        for(int tabs=11; tabs>0 && *s!='\0'; *s=='\t' && tabs--)
+            SKIPNONNULL(s);
+        if (*s == '\t') s++;
+    }
     SKIPNONNULL(s); SKIPNONNULL(s); // skip to 3rd char of string if it is at least 2 chars
 
     for (num_tags=0; *s != '\0'; SKIPNONNULL(s)) {
@@ -381,21 +384,18 @@ int sam_attribute(Cell * x, Cell * ap, Cell * posp) {
             }
         }
         if (value != NULL) {
+            num_tags++;
             while (*s != '\0' && *s != tab) // move to char after value end
                 s++;
 
-            if (num_tags > 0 || (s-value) <= MaxFirstValue) { // lower odds that qual field start is seen as tag
-                num_tags++;
+            temp = *s; *s = '\0';
+            set_array_ele(tag_str, value, (Array *) ap->sval); // copy value directly from sam line variable
+            *s = temp; // either '\0' to stop loop or tab to keep looking for more tags
 
-                temp = *s; *s = '\0';
-                set_array_ele(tag_str, value, (Array *) ap->sval); // copy value directly from sam line variable
-                *s = temp; // either '\0' to stop loop or tab to keep looking for more tags
-
-                if (posp) {
-                    snprintf(numstr, sizeof(numstr), "T%d", num_tags); // pos[tag number] = tag name
-                    set_array_ele(numstr + 1, tag_str, (Array *) posp->sval); // nb: key skips over initial T
-                    set_array_ele(numstr, typ_str, (Array *) posp->sval); // pos["T" tag number] = tag type
-                }
+            if (posp) {
+                snprintf(numstr, sizeof(numstr), "T%d", num_tags); // pos[tag number] = tag name
+                set_array_ele(numstr + 1, tag_str, (Array *) posp->sval); // nb: key skips over initial T
+                set_array_ele(numstr, typ_str, (Array *) posp->sval); // pos["T" tag number] = tag type
             }
         } // if (value != NULL)
     } // for
@@ -573,8 +573,9 @@ Cell *bio_func(int f, Cell *x, Node **a)
             int del_val_quotes = (f == BIO_GTFATTR);
             numattrs = bio_attribute(x, ap, posp, kw_delimiter, del_val_quotes);
         }
-        else
+        else {
             numattrs = sam_attribute(x, ap, posp);
+        }
         setfval(y, (Awkfloat)numattrs);
     } else if (f == BIO_FSYSTIME) { /* 12Aug2019 JBH_CAS add systime() that gawk has had for awhile */
         time_t lclock;
@@ -916,6 +917,10 @@ Cell *bio_func(int f, Cell *x, Node **a)
         } else
             WARNING("applytochars(str, stmt_or_func). 2nd arg called for each char in str with CHAR and ORD variables set.");
 
+    } else if (f == BIO_COLCAT) { /* combine cols using range syntax, optional separator, default to OFS  */
+        // uses digits for columns, .. syntax, comma syntax and NF eg., colcat("2,4..9,11..NF")
+        // equiv colcat("$2,$4..$9,$11..$NF") colcat("2,4..9,11..")
+        setsval(y, "Not implemented");
     } /* else: never happens */
     return y;
 }
