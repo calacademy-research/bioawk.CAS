@@ -198,7 +198,8 @@ bawk '
 
    BEGIN{InFix = 2; ExtCIGAR = 20; RegCIGAR = 10; extmode = InFix + ExtCIGAR; ComputeLen = -1
 
-         adap="AAGCAGTGGTATCAACGCAGAGTACT"; adap_rc=adap; revcomp(adap_rc)
+         adap="AAGCAGTGGTATCAACGCAGAGTACT"
+         adap_rc=adap; revcomp(adap_rc)
          alen=length(adap)
          max_miss = int_ceil(alen/10) + 1 # little less than 90% match at worst
 
