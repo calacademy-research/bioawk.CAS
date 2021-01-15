@@ -58,7 +58,7 @@ Output in same order as attr string
 
 Remaining functions have been added in bioawk_cas
 
-(3) ``samattr(sam_line, arr[, pos_arr])`` similar to gffattr and gtfattr except since tag fields are tab delimited, the entire line is provided to the function using the $0 variable. The type char is also in pos_arr with 'T' prefixed position, pos_arr["T1"], pos_arr["T2"], etc. For example, if this was the sam line:
+(3) ``samattr(sam_line, arr[, pos_arr])`` similar to gffattr and gtfattr except since tag fields are tab delimited, the entire line is provided to the function using the $0 variable or you can use ``fldcat(12,NF,"\t")`` as shown below. The type char is also in pos_arr with 'T' prefixed position, pos_arr["T1"], pos_arr["T2"], etc. For example, if this was the sam line:
 ```
 ref1_grp1_p004  99      ref1    13      6       10M     =       37      34      CCGGGGATCC      ''''''''''      fa:f:1.38e-23   za:Z:xRG:Z:grp2 RG:Z:grp1       NM:i:0  MD:Z:10
 ```
@@ -93,10 +93,10 @@ $ echo "example string to check" | bioawk_cas '{print; print "md5:", md5($0)}'
 example string to check
 md5: 59471d22e23e4198fd170cc7e4a58cbb
 ```
-(6) ``fldcat(start_fldno, end_fldno[, separator])`` return fields from start_fldno to end_fldno with separator given or OFS if not. This is useful to print the fields starting from one field to the end of fields using NF for end_fldno. Or, for example if you could give just 12th to final field to samattr instead of $0.
+(6) ``fldcat(start_fldno, end_fldno[, separator])`` return fields from start_fldno to end_fldno with separator given or OFS if no 3rd arg. This is useful to print fields starting from one field to the end of fields using NF as end_fldno. Or, for example you might give just 12th to final field to samattr instead of $0.
 ```
-flds = fldcat(12, NF, "\t")
-tot=samattr(flds, ar, pos)
+tag_flds = fldcat(12, NF, "\t")
+tot_tags =s amattr(tag_flds, ar, pos)
 ...
 ```
 
