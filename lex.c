@@ -53,7 +53,6 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "break",	BREAK,		BREAK },
 	{ "charcount",  BIO_CHARCOUNT,  BLTIN }, /* charcount(str, ar_chars) -- returns val e.g. ar_chars["A"]=173 */
 	{ "close",	CLOSE,		CLOSE },
-    { "colcat", BIO_COLCAT, BLTIN },
 	{ "continue",	CONTINUE,	CONTINUE },
 	{ "cos",	FCOS,		BLTIN },
 	{ "delete",	DELETE,		DELETE },
@@ -64,6 +63,7 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "exit",	EXIT,		EXIT },
 	{ "exp",	FEXP,		BLTIN },
 	{ "fflush",	FFLUSH,		BLTIN },
+    { "fldcat", BIO_FLDCAT, BLTIN },
 	{ "for",	FOR,		FOR },
 	{ "func",	FUNC,		FUNC },
 	{ "function",	FUNC,		FUNC },

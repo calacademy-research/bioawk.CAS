@@ -917,10 +917,46 @@ Cell *bio_func(int f, Cell *x, Node **a)
         } else
             WARNING("applytochars(str, stmt_or_func). 2nd arg called for each char in str with CHAR and ORD variables set.");
 
-    } else if (f == BIO_COLCAT) { /* combine cols using range syntax, optional separator, default to OFS  */
-        // uses digits for columns, .. syntax, comma syntax and NF eg., colcat("2,4..9,11..NF")
-        // equiv colcat("$2,$4..$9,$11..$NF") colcat("2,4..9,11..")
-        setsval(y, "Not implemented");
+    } else if (f == BIO_FLDCAT) { /* fldcat(start_fldno, end_fldno) combine consecutive fields, separate with OFS */
+        extern Cell **fldtab; extern int nfields; extern char **OFS;
+        char *fldsep = *OFS;
+        size_t seplen = strlen(fldsep), cat_len = 0, buf_len = 1024; // start with this and realloc as necessary
+
+        fldbld(); // build fldtab if not already done, also sets nfields
+        int start_fld = (int) getfval(x);
+        if (start_fld > nfields) start_fld = 0;
+
+        int end_fld = (a[1]->nnext) ? (int) getfval(execute(a[1]->nnext)) : 0;
+        if (end_fld > nfields) end_fld = nfields;
+
+        if (a[1]->nnext && a[1]->nnext->nnext) { // use 3rd arg as separator instead of OFS
+            fldsep = getsval(execute(a[1]->nnext->nnext));
+            seplen = strlen(fldsep);
+        }
+
+        char *catbuf = calloc(buf_len, sizeof(char));
+        if (start_fld > 0) {
+            for (int n = start_fld; n <= end_fld && catbuf; n++, cat_len = strlen(catbuf)) {
+                Cell *fld = fldtab[n];
+
+                size_t needed = cat_len + strlen(fld->sval) + seplen + 1;
+                if (buf_len <= needed) {
+                    buf_len = needed + 8192;
+                    catbuf = realloc(catbuf, buf_len);
+                }
+
+                if (catbuf) {
+                    if (n > start_fld) strcat(catbuf, fldsep);
+                    strcat(catbuf, fld->sval);
+                }
+            }
+        } else {
+            WARNING("\tfldcat(start_fldno, end_fldno[, separator])\n"
+                    "\t\treturn fields from start_fldno to end_fldno with optional separator (default OFS).");
+        }
+        setsval(y, catbuf);
+        free(catbuf); // setsval allocates buffer and does strcpy of catbuf
+
     } /* else: never happens */
     return y;
 }
