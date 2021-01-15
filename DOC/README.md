@@ -83,7 +83,7 @@ outputs
 5       MD      10  Z
 ```
 
-**Miscellaneous functions** ``systime`` ``md5``
+**Miscellaneous functions** ``systime`` ``md5`` ``fldcat``
 
 (4) ``systime()`` returns the number of milliseconds since the Linux epoch. This is already in most other awk versions. Useful for timing.
 
