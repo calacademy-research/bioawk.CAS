@@ -96,7 +96,7 @@ md5: 59471d22e23e4198fd170cc7e4a58cbb
 (6) ``fldcat(start_fldno, end_fldno[, separator])`` return fields from start_fldno to end_fldno with separator given or OFS if no 3rd arg. This is useful to print fields starting from one field to the end of fields using NF as end_fldno. Or, for example you might give just 12th to final field to samattr instead of $0.
 ```
 tag_flds = fldcat(12, NF, "\t")
-tot_tags =s amattr(tag_flds, ar, pos)
+tot_tags = samattr(tag_flds, ar, pos)
 ...
 ```
 
