@@ -93,7 +93,12 @@ $ echo "example string to check" | bioawk_cas '{print; print "md5:", md5($0)}'
 example string to check
 md5: 59471d22e23e4198fd170cc7e4a58cbb
 ```
-(6) ``fldcat(start_fldno, end_fldno[, separator]`` returns fields from start_fldno to end_fldno with separator given or OFS if not
+(6) ``fldcat(start_fldno, end_fldno[, separator])`` return fields from start_fldno to end_fldno with separator given or OFS if not. This is useful to print the fields starting from one field to the end of fields using NF for end_fldno. Or, for example if you could give just 12th to final field to samattr instead of $0.
+```
+flds = fldcat(12, NF, "\t")
+tot=samattr(flds, ar, pos)
+...
+```
 
 **Character functions** ``modstr`` ``setat`` ``charcount`` ``applytochars``
 
@@ -118,7 +123,7 @@ gives
 N:4 G:2 a:2 A:1 B:1 C:1 E:1 H:1 I:1 J:1 d:1 f:1
 ```
 
-(10) ``applytochars(str, stmt_or_func [,...])`` calls the 2nd and other arguments for each character in str with CHAR and ORD variables set.
+(10) ``applytochars(str, stmt_or_func [,...])`` call the 2nd and other arguments for each character in str with CHAR and ORD variables set.
 ```
 bioawk_cas '
    function apply(){if(CHAR=="N")Ns++}
