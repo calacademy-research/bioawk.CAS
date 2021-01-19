@@ -322,7 +322,7 @@ int bio_attribute(Cell * x, Cell * ap, Cell * posp, char kw_delimiter, int del_v
             // for gtf files we remove the quotes around the value
             if (del_val_quotes && *value == QUOTE) {
                 value++;
-                if (val_term > value && *val_term == QUOTE)
+                if (val_term > value && *(val_term-1) == QUOTE)
                     val_term--;
             }
 
