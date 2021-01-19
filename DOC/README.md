@@ -58,7 +58,7 @@ Output in same order as attr string
 
 Remaining functions have been added in bioawk_cas
 
-(2b) ``samattr(sam_line, arr[, pos_arr])`` similar to gffattr and gtfattr except since tag fields are tab delimited, the entire line is provided to the function using the $0 variable. The type char is also in pos_arr with 'T' prefixed position, pos_arr["T1"], pos_arr["T2"], etc. For example, if this was the sam line:
+(3) ``samattr(sam_line, arr[, pos_arr])`` similar to gffattr and gtfattr except since tag fields are tab delimited, the entire line is provided to the function using the $0 variable or you can use ``fldcat(12,NF,"\t")`` as shown below. The type char is also in pos_arr with 'T' prefixed position, pos_arr["T1"], pos_arr["T2"], etc. For example, if this was the sam line:
 ```
 ref1_grp1_p004  99      ref1    13      6       10M     =       37      34      CCGGGGATCC      ''''''''''      fa:f:1.38e-23   za:Z:xRG:Z:grp2 RG:Z:grp1       NM:i:0  MD:Z:10
 ```
@@ -83,25 +83,32 @@ outputs
 5       MD      10  Z
 ```
 
-**Miscellaneous functions** ``systime`` ``md5``
+**Miscellaneous functions** ``systime`` ``md5`` ``fldcat``
 
-(3) ``systime()`` returns the number of milliseconds since the Linux epoch. This is already in most other awk versions. Useful for timing.
+(4) ``systime()`` returns the number of milliseconds since the Linux epoch. This is already in most other awk versions. Useful for timing.
 
-(4) ``md5(str)`` returns the md5 code of the string argument. For example:
+(5) ``md5(str)`` returns the md5 code of the string argument. For example:
 ```
 $ echo "example string to check" | bioawk_cas '{print; print "md5:", md5($0)}'
 example string to check
 md5: 59471d22e23e4198fd170cc7e4a58cbb
 ```
+(6) ``fldcat(start_fldno, end_fldno[, separator])`` return fields from start_fldno to end_fldno with separator given or OFS if no 3rd arg. This is useful to print fields starting from one field to the end of fields using NF as end_fldno. Or, for example you might give just 12th to final field to samattr instead of $0.
+```
+tag_flds = fldcat(12, NF, "\t")
+tot_tags = samattr(tag_flds, ar, pos)
+...
+```
+
 **Character functions** ``modstr`` ``setat`` ``charcount`` ``applytochars``
 
 A few of the functions were added since it is difficult or slow using substr() to modify or access the characters of a string.
 
-(5) ``modstr`` takes 3 to 5 arguments ``modstr(str, start, length, [mod_type, str_length])`` and is used for in-place string variable case modification. mod_type 0 to lowercase, 1 to uppercase (default 0). Optional str_length faster for multiple calls, so the length isn't recalculated every call.
+(7) ``modstr`` takes 3 to 5 arguments ``modstr(str, start, length, [mod_type, str_length])`` and is used for in-place string variable case modification. mod_type 0 to lowercase, 1 to uppercase (default 0). Optional str_length faster for multiple calls, so the length isn't recalculated every call.
 
-(6) ``setat`` takes 3 or 4 arguments ``setat(str,pos,replacement[, optional repeat_count])`` and does an in-place overwrite of a string with another string. Often used with a single character replacement string. The modified string is not changed in length.
+(8) ``setat`` takes 3 or 4 arguments ``setat(str,pos,replacement[, optional repeat_count])`` and does an in-place overwrite of a string with another string. Often used with a single character replacement string. The modified string is not changed in length.
 
-(7) ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
+(9) ``charcount(str, arr)`` fills arr with count of each character in str. returns number of different chars.
 ```
 bioawk_cas 'BEGIN{OFS=":"
    exmp="AaGBCNdEfaGHNINNJ"
@@ -116,7 +123,7 @@ gives
 N:4 G:2 a:2 A:1 B:1 C:1 E:1 H:1 I:1 J:1 d:1 f:1
 ```
 
-(8) ``applytochars(str, stmt_or_func [,...])`` calls the 2nd and other arguments for each character in str with CHAR and ORD variables set.
+(10) ``applytochars(str, stmt_or_func [,...])`` call the 2nd and other arguments for each character in str with CHAR and ORD variables set.
 ```
 bioawk_cas '
    function apply(){if(CHAR=="N")Ns++}
@@ -158,14 +165,14 @@ tot Ns: 6
 
 **Search functions** ``hamming`` ``edit_dist`` ``end_adapter_pos``
 
-(9) ``hamming( pattern, text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]] )`` compares the pattern of the first argument to the characters in the text of the second argument for the length of the pattern (up to any remaining characters in the text string).
+(11) ``hamming( pattern, text [, text_pos: (1_indexed)default 1 [, case_sensitive: true [, N_wildcard: false] ]] )`` compares the pattern of the first argument to the characters in the text of the second argument for the length of the pattern (up to any remaining characters in the text string).
 
 Returns the number of mismatches.
 
 Comparison starts at position of the optional third argument, text_pos.  Default is to start at text string beginning which is text_pos 1.
 Optional arguments 4 and 5 allow for case insensitive comparisons and the ability to treat the N character as a wildcard. To use either of these a text_pos must be provided.
 
-(10) ``edit_dist( max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]] )``
+(12) ``edit_dist( max_editdist, str1, str1_match_len, str2[, str2_len [, mode: default 1 [, flags]]] )``
 
            max_editdist: -1 means no max set. setting a max_editdist speeds up the search.   
 
@@ -191,7 +198,8 @@ bawk '
 
    BEGIN{InFix = 2; ExtCIGAR = 20; RegCIGAR = 10; extmode = InFix + ExtCIGAR; ComputeLen = -1
 
-         adap="AAGCAGTGGTATCAACGCAGAGTACT"; adap_rc=adap; revcomp(adap_rc)
+         adap="AAGCAGTGGTATCAACGCAGAGTACT"
+         adap_rc=adap; revcomp(adap_rc)
          alen=length(adap)
          max_miss = int_ceil(alen/10) + 1 # little less than 90% match at worst
 
@@ -224,7 +232,7 @@ m64044_201011_075919/120/ccs     ampF 0 26= 1 26         ampR 1 4=1D22= 17923 17
 m64044_201011_075919/124/ccs     ampF 0 26= 1 26         ampR 0 26= 13041 13066  rdlen 13066
 ```
 
-(11)  ``end_adapter_pos`` checks the last 16 nt of the sequence against the first 16 nt of the adapter seq, then the last 15 nt of the read for the first 15 nt of the adapter
+(13)  ``end_adapter_pos`` checks the last 16 nt of the sequence against the first 16 nt of the adapter seq, then the last 15 nt of the read for the first 15 nt of the adapter
 and so-on until the last 4 nt of the read is checked with first 4 adapter nt. 
 
 Considered matched when an attempt has an acceptable hamming distance: 4 mismatches at 16 nt, 3 starting at 12 nt then 2 starting at 8 nt, 1 mismatch at 6 and 5 nt, no mismatch at 4 nt.
