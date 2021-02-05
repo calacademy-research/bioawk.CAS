@@ -211,7 +211,7 @@ const unsigned char ntval4[256] = {
     4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
     };
 
-char bio_lookup_codon(char *dna, int table)
+char bio_lookup_codon(const char *dna, int table)
 {
     int ix;
     int i;
@@ -266,6 +266,42 @@ Cell *set_array_ele(const char *key, const char *val, Array *ap)
         return setsymtab(key, val, atof(val), STR|NUM, ap);
     else
         return setsymtab(key, val, 0.0, STR, ap);
+}
+
+int codons_find(const char *nt, const char *aa, Cell *ap) {
+    char *exon = calloc(3*(strlen(aa)+3), sizeof(char));
+    const char *p = nt, *pfirstcodon = NULL, *paa = aa;
+    int num_found = 0;
+
+    char first = *aa; // remember first codon char
+    while (*p) {
+        for (; *p; p++) { // find first codon
+            if (bio_lookup_codon(p, 0) == first) {
+                pfirstcodon = p;
+                break;
+            }
+        }
+        if (*p && pfirstcodon) { // now check all consecutive 3 bases match desired AA codons (rechecks first codon too)
+            while (*paa && (*paa=='.' || bio_lookup_codon(p, 0)==*paa)) { // dot matches anything otherwise need matching codon
+                strncat(exon, p, 3);  // copy codon
+                p += 3; // only move p if we have a codon. that guarantees we did not have the terminating null in those 3 chars
+                ++paa;
+            }
+            if (*paa == '\0') { // we have them all, store exon val and position in string as key in array ap
+                char numstr[50];
+                snprintf(numstr, sizeof(numstr), "%ld", pfirstcodon - nt + 1);
+                set_array_ele(numstr, exon, (Array *) ap->sval);
+                num_found++;
+            }
+            else // did not get all codons, have to move back to base after our first codon and try again
+                p = pfirstcodon + 1;
+            pfirstcodon = NULL;
+            paa = aa;
+            exon[0] = '\0';
+        }
+    }
+    free(exon);
+    return num_found;
 }
 
 int bio_attribute(Cell * x, Cell * ap, Cell * posp, char kw_delimiter, int del_val_quotes) {
@@ -957,6 +993,26 @@ Cell *bio_func(int f, Cell *x, Node **a)
         setsval(y, catbuf);
         free(catbuf); // setsval allocates buffer and does strcpy of catbuf
 
+    } else if (f == BIO_CODONSFIND) { /* find_codons(nt_str, AA_str, result_arr) */
+        int num_found = -1, start_pos = 1;
+
+        int WARN = !(a[1]->nnext && a[1]->nnext->nnext); /* 2nd, 3rd args: AA_str, result_arr */
+        if (!WARN) {
+            char *s = getsval(x); // pointer to input string
+            Cell *u = execute(a[1]->nnext); // AA pattern to search as nucleotides
+            char *aa = getsval(u); // pointer to AA pattern
+            Cell *rslts = execute(a[1]->nnext->nnext); // 3rd arg names array for holding results
+            freesymtab(rslts);
+            rslts->tval &= ~STR; rslts->tval |= ARR;
+            rslts->sval = (char *) makesymtab(NSYMTAB);
+            start_pos--;
+
+            num_found = codons_find(s+start_pos, aa, rslts);
+            tempfree(u); u = NULL;
+        } else {
+            WARNING("\tfind_codons(nucleotides_to_search, AA_pattern, result_arr)\n");
+        }
+        setfval(y, (Awkfloat) num_found);
     } /* else: never happens */
     return y;
 }

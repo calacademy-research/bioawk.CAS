@@ -63,6 +63,7 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "exit",	EXIT,		EXIT },
 	{ "exp",	FEXP,		BLTIN },
 	{ "fflush",	FFLUSH,		BLTIN },
+    { "find_codons", BIO_CODONSFIND, BLTIN },
     { "fldcat", BIO_FLDCAT, BLTIN },
 	{ "for",	FOR,		FOR },
 	{ "func",	FUNC,		FUNC },
@@ -106,7 +107,7 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "systime",    BIO_FSYSTIME,   BLTIN },  /* systime() return number of seconds since EPOCH (01Jan1970) JBH_CAS 12Aug2019 */
 	{ "tolower",	FTOLOWER,	BLTIN },
 	{ "toupper",	FTOUPPER,	BLTIN },
-    {"translate", BIO_TRANSLATE, BLTIN},
+    { "translate", BIO_TRANSLATE, BLTIN },
 	{ "trimq",	BIO_FTRIMQ,	BLTIN },
 	{ "while",	WHILE,		WHILE },
 	{ "xor",	BIO_FXOR,	BLTIN }

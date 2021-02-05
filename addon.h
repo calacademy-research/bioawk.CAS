@@ -55,6 +55,7 @@ int bio_getrec(char **pbuf, int *psize, int isrecord);
 #define BIO_GTFATTR   218 /* same as for gffattr but uses space as key/value delimiter instead of equal sign */
 #define BIO_SAMATTR   219 /* get sam format tags in format [A-Za-z][A-Za-z0-9]:[AifZHB]:[^\t]*/
 #define BIO_FLDCAT    220 /* concatenate columns using variant of range syntax, e.g. "2,4..NF" */
+#define BIO_CODONSFIND  221 /* find all codon equivs from an AA pattern in an input string */
 
 struct Cell;
 struct Node;
