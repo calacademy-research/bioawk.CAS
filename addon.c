@@ -268,21 +268,23 @@ Cell *set_array_ele(const char *key, const char *val, Array *ap)
         return setsymtab(key, val, 0.0, STR, ap);
 }
 
-int codons_find(const char *nt, const char *aa, Cell *ap) {
+int codons_find(const char *nt, const char *aa, Cell *ap, int table_index, int hamming_threshold, int max_return) {
     char *exon = calloc(3*(strlen(aa)+3), sizeof(char));
     const char *p = nt, *pfirstcodon = NULL, *paa = aa;
-    int num_found = 0;
+    int num_found = 0, allowed_mismatches;
 
     char first = *aa; // remember first codon char
     while (*p) {
         for (; *p; p++) { // find first codon
-            if (bio_lookup_codon(p, 0) == first) {
+            if (bio_lookup_codon(p, table_index) == first) {
                 pfirstcodon = p;
                 break;
             }
         }
         if (*p && pfirstcodon) { // now check all consecutive 3 bases match desired AA codons (rechecks first codon too)
-            while (*paa && (*paa=='.' || bio_lookup_codon(p, 0)==*paa)) { // dot matches anything otherwise need matching codon
+            allowed_mismatches = hamming_threshold;
+            // dot matches anything, otherwise need matching codon, or can have up to hamming_threshold mismatches
+            while (*paa && (*paa=='.' || bio_lookup_codon(p, table_index)==*paa || allowed_mismatches-- > 0) ) {
                 strncat(exon, p, 3);  // copy codon
                 p += 3; // only move p if we have a codon. that guarantees we did not have the terminating null in those 3 chars
                 ++paa;
@@ -292,6 +294,9 @@ int codons_find(const char *nt, const char *aa, Cell *ap) {
                 snprintf(numstr, sizeof(numstr), "%ld", pfirstcodon - nt + 1);
                 set_array_ele(numstr, exon, (Array *) ap->sval);
                 num_found++;
+
+                if (max_return > 0 && num_found >= max_return)
+                    break;
             }
             else // did not get all codons, have to move back to base after our first codon and try again
                 p = pfirstcodon + 1;
@@ -994,7 +999,7 @@ Cell *bio_func(int f, Cell *x, Node **a)
         free(catbuf); // setsval allocates buffer and does strcpy of catbuf
 
     } else if (f == BIO_CODONSFIND) { /* find_codons(nt_str, AA_str, result_arr) */
-        int num_found = -1, start_pos = 1;
+        int num_found = -1, table_index = 0, max_return = -1, hamming_threshold = 0;
 
         int WARN = !(a[1]->nnext && a[1]->nnext->nnext); /* 2nd, 3rd args: AA_str, result_arr */
         if (!WARN) {
@@ -1005,9 +1010,15 @@ Cell *bio_func(int f, Cell *x, Node **a)
             freesymtab(rslts);
             rslts->tval &= ~STR; rslts->tval |= ARR;
             rslts->sval = (char *) makesymtab(NSYMTAB);
-            start_pos--;
 
-            num_found = codons_find(s+start_pos, aa, rslts);
+            if (a[1]->nnext->nnext->nnext) { // optional something passed in, have not figured what yet
+                // need good way to specify table_num, max_return, and/or hamming threshold
+                Cell *v = execute(a[1]->nnext->nnext->nnext);
+                hamming_threshold = (int) getfval(v); // for now allow hamming to play with but not set in stone
+                tempfree(v); v = NULL;
+            }
+
+            num_found = codons_find(s, aa, rslts, table_index, hamming_threshold, max_return);
             tempfree(u); u = NULL;
         } else {
             WARNING("\tfind_codons(nucleotides_to_search, AA_pattern, result_arr)\n");
