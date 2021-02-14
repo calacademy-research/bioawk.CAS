@@ -21,8 +21,8 @@ fastx:
 
 bioawk functions:
 	gc meanqual qualcount revcomp reverse trimq and or xor
-	translate gffattr gtfattr samattr fldcat
-	systime md5 edit_dist hamming end_adapter_pos charcount applytochars modstr setat
+	translate gffattr gtfattr samattr fldcat systime md5
+	edit_dist hamming end_adapter_pos charcount applytochars modstr setat find_codons
 ```
 The first line under bioawk functions in the above code block are the functions added in Heng Li's original version.
 The next line has the translate, gffattr functions from ctSkennerton/bioawk and then new functions added in bioawk_cas following and in next line.
