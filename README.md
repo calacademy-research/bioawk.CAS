@@ -49,9 +49,9 @@ If these do not work, clone the edlib repo https://github.com/Martinsos/edlib an
 Examples and function documentation in [DOC](DOC) folder.
 
 ---
-**Here is the original documentation**
+### Here is the original documentation
 
-###Introduction
+### Introduction
 
 Bioawk is an extension to [Brian Kernighan's awk][1], adding the support of
 several common biological data formats, including optionally gzip'ed BED, GFF,
@@ -60,15 +60,15 @@ few built-in functions and an command line option to use TAB as the
 input/output delimiter. When the new functionality is not used, bioawk is
 intended to behave exactly the same as the original BWK awk.
 
-###New functionality
+### New functionality
 
-#####Command line option `-t` *note: tab character for FS and OFS is now the default*
+##### Command line option `-t` *note: tab character for FS and OFS is now the default*
 
 Using this option is equivalent to
 
     bioawk -F'\t' -v OFS="\t"
 
-#####Command line option `-c arg`
+##### Command line option `-c arg`
 
 This option specifies the input format. When this option is in use, bioawk will
 seamlessly add variables that name the fields, based on either the format or
@@ -91,11 +91,11 @@ to read gzip'd files. The argument *arg* may take the following values:
   various fields can be retrieved with column names. See also example 4 in the
   following.
 
-#####New built-in functions
+##### New built-in functions
 
 See `awk.1`.
 
-###Examples
+### Examples
 
 1. List the supported formats:
 
@@ -132,7 +132,7 @@ bactera/archaea code:
 
 
 
-###Potential limitations
+### Potential limitations
 
 1. When option `-c` is in use, bioawk replaces the line reading module of awk.
    The new line reading function parses FASTA and FASTQ files and seamlessly
