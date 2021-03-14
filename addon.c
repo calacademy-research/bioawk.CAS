@@ -722,7 +722,8 @@ Cell *bio_func(int f, Cell *x, Node **a)
         // EDLIB_MODE_HW  (2) finds best matches of str1 in str2 (infix or local)
         // if mode value has 10 added to it, we show standard CIGAR, if 20 or more extended CIGAR is shown
         Cell *u = 0, *v = 0, *w = 0;  /* for other args, min 4 up to 6 */
-        #define EDBLEN 100
+        #define EDBLEN 140
+        #define TMPBLEN 60
         char edit_dist_buf[EDBLEN] = "-1";
         int mode = EDLIB_MODE_SHW; /* default to prefix mode. works well in concert with a str1_match_len shorter than str1 */
         int task = EDLIB_TASK_LOC; /* gets aligment for cigar when mode arg > 9 EDLIB_TASK_PATH */
@@ -784,16 +785,18 @@ Cell *bio_func(int f, Cell *x, Node **a)
 
                 EdlibAlignResult result = edlibAlign(str1, slen1, str2, slen2, edlibConfig);
                 if (result.status == EDLIB_STATUS_OK) {
-                    char temp[50];
+                    char temp[TMPBLEN];
                     int start = -1, end = -1;
                     sprintf(edit_dist_buf, "%d", result.editDistance);
                     if (result.alignment) {
                         char* cigar = edlibAlignmentToCigar(result.alignment, result.alignmentLength, cigar_type);
-                        sprintf(temp, " %s", cigar);
+                        snprintf(temp, TMPBLEN-5, " %s", cigar);
+                        if(strlen(cigar) >= TMPBLEN-5)
+                            strcat(temp, "...");
                         strcat(edit_dist_buf, temp);
                         free(cigar);
                     }
-                    for (int i=0; i < result.numLocations; i++) { // 1 index start and end locations for awk ouput
+                    for (int i=0; i < result.numLocations; i++) { // 1 index start and end locations for awk output
                         start = result.startLocations[i] + 1;
                         end = result.endLocations[i] + 1;
                         sprintf(temp, " %d %d", start, end);
@@ -958,7 +961,7 @@ Cell *bio_func(int f, Cell *x, Node **a)
         } else
             WARNING("applytochars(str, stmt_or_func). 2nd arg called for each char in str with CHAR and ORD variables set.");
 
-    } else if (f == BIO_FLDCAT) { /* fldcat(start_fldno, end_fldno) combine consecutive fields, separate with OFS */
+    } else if (f == BIO_FLDCAT) { /* fldcat(start_fldno, end_fldno[, sep]) combine consecutive fields, separate with OFS or 3rd arg */
         extern Cell **fldtab; extern int nfields; extern char **OFS;
         char *fldsep = *OFS;
         size_t seplen = strlen(fldsep), cat_len = 0, buf_len = 1024; // start with this and realloc as necessary
@@ -1050,7 +1053,7 @@ int bio_getrec(char **pbuf, int *psize, int isrecord)
 
     int i, c, saveb0, dret, bufsize = *psize, savesize = *psize;
     char *p, *buf = *pbuf;
-    if (g_firsttime) { /* mimicing initgetrec() in lib.c */
+    if (g_firsttime) { /* mimicking initgetrec() in lib.c */
         g_firsttime = 0;
         for (i = 1; i < *ARGC; i++) {
             p = getargv(i); /* find 1st real filename */
