@@ -267,3 +267,33 @@ E00489:558:H7N5LCCX2:4:1101:24698:1485  rec 287:        145 5 0
  Top line tells us record 94 has the first 11 bases of the adapter matching with 3 errors starting at position 139 of the read.
  
  I have used this with libraries, especially mate-pair, after trimming with Trimmomatic to do an additional clean-up at the end of reads when the matched adapter length is below the horizon of the other tool.
+ 
+ (14)  ``find_codons`` searches a nucleotide string for codon equivalents of an amino acid string. It places the positions where the matched codons occur into an array as keys and the codons as the value. It finds all such matches in the input nucleotide string.
+Returns number of matches found and placed into the array. Optional hamming threshold argument.
+
+The amino acid sequence can contain a dot "." to match any run of three nucleotides, including a stop codon. You can use ``translate`` and ``index`` to check for this.
+Optional hamming threshold allows the input number of codon mismatches to occur and still consider the AA sequence matched. You can revcomp the sequence and use find_codons again to search in both directions.
+
+```find_codons(nucleotides_to_search, AA_pattern, result_arr[, optional hamming threshold, defaults to 0])```
+
+```
+bawk '
+{
+   n = find_codons($seq, "M.PSVLLLL", aCodons)
+   for (key in aCodons) {
+      val = aCodons[key]
+      print $name, key, val, translate(val)
+   }
+}' GRCm39_genomic.fna | sort -k1,1V -k2,2n
+```
+outputs
+```
+NC_000068.8	103773480	ATGCTCCCTTCAGTGTTGCTCCTTCTT	MLPSVLLLL
+NC_000073.7	25597110	ATGGAGCCCAGTGTCCTGCTCCTCCTT	MEPSVLLLL
+NC_000073.7	25649678	ATGGAGCCCAGTGTTCTACTCCTCCTT	MEPSVLLLL
+NC_000073.7	25760945	ATGGATCCTAGTGTCCTGCTCCTCCTT	MDPSVLLLL
+NC_000073.7	25872859	ATGGATCCTAGTGTCCTGCTCCTCCTT	MDPSVLLLL
+NC_000076.7	51816292	ATGTGGCCCTCAGTACTCCTGCTTCTG	MWPSVLLLL
+NC_000078.7	45856902	atgATGCcatcagttcttttattattg	MMPSVLLLL
+NC_000078.7	105618399	ATGAGCCCCtccgtcctcctcctcctg	MSPSVLLLL
+```
