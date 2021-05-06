@@ -1,0 +1,7 @@
+*.o
+proctab.c
+bioawk
+bioawk_cas
+gffattr
+maketab
+maketab.dSYM/
