@@ -17,7 +17,7 @@ static const char *col_defs[][15] = { /* FIXME: this is convenient, but not memo
     {"bed", "chrom", "start", "end", "name", "score", "strand", "thickstart", "thickend", "rgb", "blockcount", "blocksizes", "blockstarts", NULL},
     {"sam", "qname", "flag", "rname", "pos", "mapq", "cigar", "rnext", "pnext", "tlen", "seq", "qual", NULL},
     {"vcf", "chrom", "pos", "id", "ref", "alt", "qual", "filter", "info", NULL},
-    {"gff", "seqname", "source", "feature", "start", "end", "score", "filter", "strand", "group", "attribute", NULL},
+    {"gff", "seqname", "source", "feature", "start", "end", "score", "strand", "frame", "attribute", NULL},
     {"fastx", "name", "seq", "qual", "comment", NULL},
     {NULL}
 };
@@ -1132,7 +1132,9 @@ getrec_start:
             }
         }
         adjbuf(&buf, &bufsize, g_str.l + 1, recsize, 0, "bio_getrec");
-        memcpy(buf, g_str.s, g_str.l + 1);
+        if (g_str.s) { // per bioawk push by elmccarthy Aug 10 2022: Avoid segfault on empty fastx file
+            memcpy(buf, g_str.s, g_str.l + 1);
+        }
         if (c >= 0) {	/* normal record */
             if (isrecord) {
                 if (freeable(fldtab[0]))
