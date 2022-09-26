@@ -96,6 +96,7 @@ void initgetrec(void)
 		}
 		if (!isclvar(p)) {
 			setsval(lookup("FILENAME", symtab), p);
+            setfval(filenumloc, 0); /* 26Sep2022 count files */
 			return;
 		}
 		setclvar(p);	/* a commandline assignment before filename */
@@ -147,6 +148,7 @@ int getrec(char **pbuf, int *pbufsize, int isrecord)	/* get next input record */
 			else if ((infile = fopen(file, "r")) == NULL)
 				FATAL("can't open file %s", file);
 			setfval(fnrloc, 0.0);
+            setfval(filenumloc, filenumloc->fval + 1); /* 26Sep2022 count files */
 		}
 		c = readrec(&buf, &bufsize, infile);
 		if (c != 0 || buf[0] != '\0') {	/* normal record */

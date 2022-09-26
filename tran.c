@@ -46,12 +46,14 @@ Awkfloat *NF;		/* number of fields in current record */
 Awkfloat *NR;		/* number of current record */
 Awkfloat *FNR;		/* number of current record in current file */
 char	**FILENAME;	/* current filename argument */
+Awkfloat *FILENUMBER; /* current file number 26Sep2022 */
 Awkfloat *ARGC;		/* number of arguments from command line */
 char	**SUBSEP;	/* subscript separator for a[i,j,k]; default \034 */
 Awkfloat *RSTART;	/* start of re matched with ~; origin 1 (!) */
 Awkfloat *RLENGTH;	/* length of same */
 
 Cell	*fsloc;		/* FS */
+Cell    *filenumloc;   /* FILENUMBER */
 Cell	*nrloc;		/* NR */
 Cell	*nfloc;		/* NF */
 Cell	*fnrloc;	/* FNR */
@@ -82,6 +84,8 @@ void syminit(void)	/* initialize symbol table with builtin vars */
 	OFMT = &setsymtab("OFMT", "%.6g", 0.0, STR|DONTFREE, symtab)->sval;
 	CONVFMT = &setsymtab("CONVFMT", "%.6g", 0.0, STR|DONTFREE, symtab)->sval;
 	FILENAME = &setsymtab("FILENAME", "", 0.0, STR|DONTFREE, symtab)->sval;
+    filenumloc = setsymtab("FILENUMBER", "", 0.0, NUM, symtab); /* 26Sep2022 count files */
+    FILENUMBER = &filenumloc->fval;
 	nfloc = setsymtab("NF", "", 0.0, NUM, symtab);
 	NF = &nfloc->fval;
 	nrloc = setsymtab("NR", "", 0.0, NUM, symtab);

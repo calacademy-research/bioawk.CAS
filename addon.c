@@ -1063,6 +1063,7 @@ int bio_getrec(char **pbuf, int *psize, int isrecord)
             }
             if (!isclvar(p)) {
                 setsval(lookup("FILENAME", symtab), p);
+                setfval(filenumloc, 0); /* 26Sep2022 count files */
                 goto getrec_start;
             }
             setclvar(p);	/* a commandline assignment before filename */
@@ -1104,6 +1105,7 @@ getrec_start:
                 g_is_stdin = 0;
             }
             setfval(fnrloc, 0.0);
+            setfval(filenumloc, filenumloc->fval + 1); /* 26Sep2022 count files */
         }
         if (bio_fmt != BIO_FASTX) {
             c = ks_getuntil(g_kseq->f, **RS, &g_str, &dret);

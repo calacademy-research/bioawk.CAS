@@ -22,7 +22,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 ****************************************************************/
 
-const char	*version = "version 20110810 [bioawk_cas 2021Feb11]";
+const char	*version = "version 20110810 [bioawk_cas 2022Sep26]";
 const char	*usage_str = "\nusage: %s [-F fs] [-v var=value] [-c fmt] [-tH] [-f progfile | 'prog'] [file ...]\n\n";
 
 #define DEBUG
@@ -78,17 +78,15 @@ int main(int argc, char *argv[])
 		if (strcmp(argv[1],"-version") == 0 || strcmp(argv[1],"--version") == 0) {
 			printf("awk %s\n", version);
 			exit(0);
-			break;
 		}
-                if (strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0) { /* -h or --help provides more info than just usage */
-	                printf(usage_str, cmdname);
-                        bio_get_fmt("");
-                        printf("\nbioawk functions:\n\tgc meanqual qualcount revcomp reverse trimq and or xor\n"
-                               "\ttranslate gffattr gtfattr samattr fldcat systime md5\n"
-                               "\tedit_dist hamming end_adapter_pos charcount applytochars modstr setat find_codons\n\n");
-                        exit(0);
-                        break;
-                }
+        if (strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0) { /* -h or --help provides more info than just usage */
+            printf(usage_str, cmdname);
+                bio_get_fmt("");
+                printf("\nbioawk functions:\n\tgc meanqual qualcount revcomp reverse trimq and or xor\n"
+                       "\ttranslate gffattr gtfattr samattr fldcat systime md5 FILENUMBER\n"
+                       "\tedit_dist hamming end_adapter_pos charcount applytochars modstr setat find_codons\n\n");
+                exit(0);
+        }
 		if (strncmp(argv[1], "--", 2) == 0) {	/* explicit end of args */
 			argc--;
 			argv++;
