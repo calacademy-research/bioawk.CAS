@@ -1,3 +1,9 @@
+### Built-in variable added to bioawk ###
+
+``FILENUMBER`` added as variable that counts the files being processed. Useful when multiple files processed with different actions for each.
+
+The ``FNR==NR`` test is usually sufficient to check that the first file is being processed. However, if the first file is empty and the second file is not the test fails and reports true for the second file not the first as intended.
+
 ### Functions added to bioawk ###
 
 **ctSkennerton's and derivative functions** ``translate`` ``gffattr`` ``gtfattr`` ``samattr``
