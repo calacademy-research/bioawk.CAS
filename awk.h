@@ -60,7 +60,7 @@ extern Awkfloat *NR;
 extern Awkfloat *FNR;
 extern Awkfloat *NF;
 extern char	**FILENAME;
-extern Awkfloat *FILENUMBER; /* 26Sep2022 */
+extern Awkfloat *FILENUM; /* 26Sep2022 */
 extern char	**SUBSEP;
 extern Awkfloat *RSTART;
 extern Awkfloat *RLENGTH;
@@ -103,7 +103,7 @@ extern Cell	*fnrloc;	/* FNR */
 extern Cell	*nfloc;		/* NF */
 extern Cell	*rstartloc;	/* RSTART */
 extern Cell	*rlengthloc;	/* RLENGTH */
-extern Cell	*filenumloc;   /* FILENUMBER 26Sep2022 */
+extern Cell	*filenumloc;   /* FILENUM 26Sep2022 */
 
 /* Cell.tval values: */
 #define	NUM	01	/* number value is valid */

@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
             printf(usage_str, cmdname);
                 bio_get_fmt("");
                 printf("\nbioawk functions:\n\tgc meanqual qualcount revcomp reverse trimq and or xor\n"
-                       "\ttranslate gffattr gtfattr samattr fldcat systime md5 FILENUMBER\n"
+                       "\ttranslate gffattr gtfattr samattr fldcat systime md5 FILENUM\n"
                        "\tedit_dist hamming end_adapter_pos charcount applytochars modstr setat find_codons\n\n");
                 exit(0);
         }
