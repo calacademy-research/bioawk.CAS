@@ -2,7 +2,7 @@
 
 ``FILENUM`` added as variable that counts the files being processed. Useful when multiple files processed with different actions for each.
 
-The ``FNR==NR`` test is usually sufficient to check that the first file is being processed. However, if the first file is empty and the second file is not the test fails and reports true for the second file not the first as intended. ``FILENUM==1`` for the first file and ``FILENUM==2`` for the second will work even if one of the files has no lines (i.e., records).
+The ``FNR==NR`` test is usually sufficient to check that the first file is being processed. However, if the first file is empty and the second file is not the test fails and reports true for the second file not the first as intended. ``FILENUM==1`` for the first file and ``FILENUM==2`` for the second will work even if one of the files has no lines (i.e., records). [Note: gawk special rules BEGINFILE and ENDFILE are not in bioawk currently].
 
 ### Functions added to bioawk ###
 
@@ -245,7 +245,7 @@ Considered matched when an attempt has an acceptable hamming distance: 4 mismatc
 
 ``end_adapter_pos("", adapter)`` to set adapter, subsequently ``end_adapter_pos(seq)`` to check seq suffix against adapter prefix.
 
-Returns string with 3 numbers: position of match, len, mismatches (-1 for none)
+Returns string with 3 numbers: position of match, len, mismatches. If no match, position is set to  -1.
     
 For example
 ```
