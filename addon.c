@@ -722,8 +722,8 @@ Cell *bio_func(int f, Cell *x, Node **a)
         // EDLIB_MODE_HW  (2) finds best matches of str1 in str2 (infix or local)
         // if mode value has 10 added to it, we show standard CIGAR, if 20 or more extended CIGAR is shown
         Cell *u = 0, *v = 0, *w = 0;  /* for other args, min 4 up to 6 */
-        #define EDBLEN 140
-        #define TMPBLEN 60
+        #define EDBLEN 640
+        #define TMPBLEN 500
         char edit_dist_buf[EDBLEN] = "-1";
         int mode = EDLIB_MODE_SHW; /* default to prefix mode. works well in concert with a str1_match_len shorter than str1 */
         int task = EDLIB_TASK_LOC; /* gets aligment for cigar when mode arg > 9 EDLIB_TASK_PATH */
