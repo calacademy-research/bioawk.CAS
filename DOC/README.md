@@ -91,7 +91,7 @@ outputs
 
 **Miscellaneous functions** ``systime`` ``md5`` ``fldcat``
 
-(4) ``systime()`` returns the number of milliseconds since the Linux epoch. This is already in most other awk versions. Useful for timing.
+(4) ``systime()`` returns the number of seconds since the Linux epoch. This is already in most other awk versions. Useful for timing.
 
 (5) ``md5(str)`` returns the md5 code of the string argument. For example:
 ```
