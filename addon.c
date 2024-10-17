@@ -12,6 +12,9 @@ extern char *md5str(uint8_t *msg, size_t len);
 int bio_flag = 0, bio_fmt = BIO_NULL;
 #define SKIPNONNULL(pch) (*pch != '\0' && pch++) // expression version of if(*pch != '\0') pch++;
 
+/* 14Oct2024 change BIO_FMEANQUAL based on this: https://github.com/nanoporetech/dorado/issues/937 */
+double phred_errors[1024] = {0};  // need at least 129 double elements, if zero first call inits to proper values
+
 static const char *col_defs[][15] = { /* FIXME: this is convenient, but not memory efficient. Shouldn't matter. */
     {"header", NULL},
     {"bed", "chrom", "start", "end", "name", "score", "strand", "thickstart", "thickend", "rgb", "blockcount", "blocksizes", "blockstarts", NULL},
@@ -513,15 +516,41 @@ Cell *bio_func(int f, Cell *x, Node **a)
             setfval(y, (Awkfloat)gc / l);
         }
     } else if (f == BIO_FMEANQUAL) {
+        /* orig commented. changed 14Oct2024 to use errors not Phred scores for sum and allow optional offset arg
         char *buf;
         int i, l, total_qual = 0;
         buf = getsval(x);
-        l = strlen(buf);
-        if (l) { /* don't try for empty strings */
+        int l = strlen(buf);
+        if (l) { // don't try for empty strings
             for (i = 0; i < l; ++i)
                 total_qual += buf[i] - 33;
             setfval(y, (Awkfloat)total_qual / l);
         }
+       */
+        char *buf = getsval(x);
+        int l = strlen(buf), offset = 0;
+        double phred_score = 0.0;  // return 0 if buf empty
+
+        if (phred_errors[0] == 0) { // initialize error table. [0] val inits to 1
+            for (int e = 0; e <= 128; ++e)
+                phred_errors[e] = pow(10, e / -10.0);
+        }
+
+        if (l) {
+            if (a[1]->nnext != 0) {  // optional 2nd arg for offset
+                Cell *u = execute(a[1]->nnext);
+                offset = (int) getfval(u);
+                tempfree(u);
+            }
+
+            int summed = 0; double err_sum = 0;
+            for (int i = offset; i < l; ++i, ++summed)
+                err_sum += phred_errors[buf[i] - 33];
+
+            double err_mean = err_sum / summed;  // error mean
+            phred_score = -10 * log10(err_mean);  // back to Phred score
+        }
+        setfval(y, (Awkfloat)phred_score);
     } else if (f == BIO_FTRIMQ) {
         char *buf;
         double thres = 0.05, s, max;
