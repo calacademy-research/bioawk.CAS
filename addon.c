@@ -526,7 +526,7 @@ Cell *bio_func(int f, Cell *x, Node **a)
                 total_qual += buf[i] - 33;
             setfval(y, (Awkfloat)total_qual / l);
         }
-       */
+        */
         char *buf = getsval(x);
         int l = strlen(buf), offset = 0;
         double phred_score = 0.0;  // return 0 if buf empty
